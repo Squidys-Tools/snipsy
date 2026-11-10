@@ -1,5 +1,3 @@
-//! Capture -> after-capture pipeline: history, clipboard, export folder, OCR.
-
 use super::{state, state_mut};
 use crate::capture::{self, PRect};
 use crate::history::{self, CaptureKind, History, HistoryEntry};
@@ -17,7 +15,6 @@ pub struct Capture {
     pub preview: Arc<RenderImage>,
     pub kind: CaptureKind,
     pub created: chrono::DateTime<chrono::Local>,
-    /// Stored history PNG (filled in once the background save completes).
     pub file: Option<PathBuf>,
 }
 
@@ -48,7 +45,6 @@ impl Capture {
     }
 }
 
-/// Capture a desktop rect without UI (fullscreen, previous area, timer).
 pub fn capture_rect_now(r: PRect, kind: CaptureKind, cx: &mut App) {
     match capture::capture_rect(r) {
         Ok(img) => finish(img, kind, cx),
@@ -104,7 +100,6 @@ pub fn add_history_entry(entry: HistoryEntry, cx: &mut App) {
     history::view::refresh(cx);
 }
 
-/// Save to the export folder with a CleanShot-like file name.
 pub fn save_to_export(capture: &Capture, cx: &mut App) {
     let dir = state(cx).settings.export_dir.clone();
     let name = capture.file_name(&state(cx).settings.file_prefix);
@@ -134,7 +129,6 @@ pub fn unique_path(p: PathBuf) -> PathBuf {
     (2..).map(|i| dir.join(format!("{stem} ({i}).{ext}"))).find(|q| !q.exists()).unwrap()
 }
 
-/// %TEMP%\Snipsy, holding the drag & drop files (cleared at startup).
 pub fn temp_root() -> PathBuf {
     std::env::temp_dir().join("Snipsy")
 }

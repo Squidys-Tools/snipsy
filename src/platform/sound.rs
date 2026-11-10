@@ -2,7 +2,6 @@ use windows::core::PCWSTR;
 
 static SHUTTER: std::sync::OnceLock<Vec<u8>> = std::sync::OnceLock::new();
 
-/// Synthesised camera-shutter click (two short filtered noise bursts).
 fn shutter_wav() -> &'static [u8] {
     SHUTTER.get_or_init(|| {
         let rate = 44100u32;

@@ -77,7 +77,6 @@ pub(super) fn draw_text_line(pm: &mut Pixmap, text: &str, size: f32, pos: Pt, co
                 }
                 let i = ((py * pw + px) * 4) as usize;
                 let a = cov.clamp(0.0, 1.0) * color[3] as f32 / 255.0;
-                // premultiplied src-over
                 for c in 0..3 {
                     let s = color[c] as f32 * a;
                     data[i + c] = (s + data[i + c] as f32 * (1.0 - a)).round().min(255.0) as u8;

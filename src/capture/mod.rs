@@ -1,6 +1,4 @@
-//! Win32 screen / window capture (GDI + DWM).
-//!
-//! All coordinates in this module are *physical* desktop pixels.
+//! All coordinates are physical desktop pixels.
 
 mod window;
 
@@ -73,7 +71,6 @@ pub fn monitors() -> Vec<MonitorInfo> {
     list
 }
 
-/// Monitor containing the given physical point (falls back to primary).
 pub fn monitor_at(x: i32, y: i32) -> Option<MonitorInfo> {
     let mons = monitors();
     mons.iter()
@@ -135,7 +132,6 @@ impl MemDc {
         Ok(Self { screen, mem, bmp, old, bits: bits as *mut u8, w, h })
     }
 
-    /// Copy out as straight RGBA with opaque alpha.
     unsafe fn to_rgba(&self) -> RgbaImage {
         let len = (self.w * self.h * 4) as usize;
         let src = std::slice::from_raw_parts(self.bits, len);

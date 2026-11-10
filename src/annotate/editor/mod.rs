@@ -1,5 +1,3 @@
-//! The Annotate window: CleanShot-style dark editor.
-
 mod backdrop_panel;
 mod canvas;
 mod export;
@@ -27,7 +25,6 @@ const STROKES: [f32; 5] = [2.0, 4.0, 6.0, 9.0, 13.0];
 const PADDINGS: [(&str, f32); 5] = [("None", 0.0), ("S", 0.05), ("M", 0.10), ("L", 0.16), ("XL", 0.24)];
 const RADII: [(&str, f32); 4] = [("0", 0.0), ("8", 8.0), ("16", 16.0), ("28", 28.0)];
 const RESIZE_PRESETS: [(&str, f32); 4] = [("25%", 0.25), ("50%", 0.5), ("75%", 0.75), ("200%", 2.0)];
-/// "Max N": scale down so the longer side is at most N px.
 const RESIZE_FIT: [u32; 3] = [2560, 1920, 1280];
 
 pub fn open(capture: Capture, cx: &mut App) {
@@ -93,7 +90,6 @@ pub struct Editor {
     /// Byte length of IME composition text appended to the edited text.
     ime_marked: usize,
     crop: Option<Rect>,
-    /// Fixed aspect ratio for the crop drag (Auto = free).
     crop_aspect: Aspect,
     show_resize: bool,
     show_bg: bool,

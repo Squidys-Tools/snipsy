@@ -1,5 +1,3 @@
-//! Full-screen capture overlay, one window per monitor.
-
 mod geometry;
 mod hud;
 mod input;
@@ -24,9 +22,7 @@ pub fn start(mode: Mode, cx: &mut App) {
         return;
     }
     state_mut(cx).capturing = true;
-    // A pending self-timer would fire into the middle of this session: abort it.
     let had_timer = toast::cancel_timer(cx);
-    // Hide our own floating UI so it is not part of the frozen frame.
     quick::set_visible(false, cx);
     let had_toast = toast::close_all(cx);
     // removed / hidden windows need a moment before DWM stops compositing them
@@ -132,7 +128,6 @@ fn open_overlays(mode: Mode, cx: &mut App) {
     state_mut(cx).overlays = handles;
 }
 
-/// Close every overlay window and run `then` once they are gone.
 fn close_all(cx: &mut App, then: impl FnOnce(&mut App) + 'static) {
     cx.defer(move |cx| {
         let handles = std::mem::take(&mut state_mut(cx).overlays);
@@ -177,7 +172,6 @@ pub struct OverlayView {
     /// Opened as All-In-One: Window / OCR are sub-modes and the HUD stays.
     all_in_one: bool,
     aspect: Aspect,
-    /// HUD size box being edited and the digits typed so far.
     editing: Option<(Dim, String)>,
     monitor: MonitorInfo,
     image: Arc<RgbaImage>,
@@ -187,8 +181,6 @@ pub struct OverlayView {
     mouse: Option<Point<Pixels>>,
     drag: Option<DragKind>,
     selection: Option<Bounds<Pixels>>,
-    /// All-In-One selection put aside while in the Window sub-mode, restored
-    /// on returning to All-In-One.
     saved_selection: Option<Bounds<Pixels>>,
     hovered_window: Option<WindowInfo>,
     magnifier: Option<Arc<RenderImage>>,

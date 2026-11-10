@@ -24,7 +24,6 @@ pub fn open_path(path: &Path) {
     }
 }
 
-/// Start an OLE drag of a file (so it can be dropped into any app).
 /// Blocks inside a modal drag loop until the drop completes.
 pub fn drag_file_out(hwnd: HWND, path: &Path) -> Result<()> {
     use windows::Win32::System::Com::IDataObject;

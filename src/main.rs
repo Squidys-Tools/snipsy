@@ -1,4 +1,3 @@
-//! Snipsy — a CleanShot X-style screenshot toolkit for Windows, built with Rust + GPUI.
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 mod annotate;
@@ -18,8 +17,6 @@ use gpui::*;
 
 fn main() {
     let args: Vec<String> = std::env::args().skip(1).collect();
-    // Single instance: a second launch forwards its arguments to the first
-    // (no arguments = All-In-One) and exits.
     let _guard = match instance::single_instance() {
         Some(g) => g,
         None => {
@@ -28,7 +25,6 @@ fn main() {
         }
     };
     let remote = instance::listen();
-    // Drag & drop temp files from earlier sessions are no longer in use.
     let _ = std::fs::remove_dir_all(app::temp_root());
     Application::new().with_assets(ui::Assets).run(move |cx: &mut App| {
         app::init(cx);

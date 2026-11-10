@@ -157,7 +157,6 @@ fn is_mostly_black(img: &RgbaImage) -> bool {
     total > 0 && dark * 100 / total > 97
 }
 
-/// Round window corners (Windows 11 style) with transparent alpha.
 pub fn round_corners(img: &mut RgbaImage, radius: f32) {
     let (w, h) = (img.width() as f32, img.height() as f32);
     let r = radius;

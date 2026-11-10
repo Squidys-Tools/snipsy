@@ -1,5 +1,3 @@
-//! Single-instance mutex and argv forwarding to the running instance.
-
 use std::sync::OnceLock;
 use windows::core::{w, PCWSTR};
 use windows::Win32::Foundation::{HWND, LPARAM, LRESULT, WPARAM};
@@ -44,7 +42,6 @@ const MAGIC: usize = 0x534E_4950;
 
 static TX: OnceLock<flume::Sender<Vec<String>>> = OnceLock::new();
 
-/// First instance: start the listener thread. Forwarded argv arrives on the receiver.
 pub(crate) fn listen() -> flume::Receiver<Vec<String>> {
     let (tx, rx) = flume::unbounded();
     let _ = TX.set(tx);

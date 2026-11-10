@@ -25,7 +25,6 @@ impl Render for Tip {
     }
 }
 
-/// Builder for `.tooltip(..)`.
 pub fn tip(text: impl Into<SharedString>) -> impl Fn(&mut Window, &mut App) -> AnyView + 'static {
     let text = text.into();
     move |_, cx| cx.new(|_| Tip(text.clone())).into()

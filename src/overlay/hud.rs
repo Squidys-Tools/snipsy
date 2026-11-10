@@ -134,7 +134,6 @@ impl OverlayView {
         ]
     }
 
-    // click a box to type an exact size (physical px); Enter applies, Tab switches
     fn size_box(&self, id: &'static str, dim: Dim, v: String, cx: &mut Context<Self>) -> Stateful<Div> {
         let typing = self.editing.as_ref().filter(|(d, _)| *d == dim).map(|(_, b)| b.clone());
         let active = typing.is_some();

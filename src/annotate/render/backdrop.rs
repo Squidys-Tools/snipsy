@@ -13,7 +13,6 @@ pub(super) fn compose_backdrop(content: &Pixmap, bd: &Backdrop, trim: Option<Rec
     let (cw, ch) = (lay.canvas_w as u32, lay.canvas_h as u32);
     let mut out = Pixmap::new(cw.max(1), ch.max(1)).unwrap();
 
-    // gradient background
     let (angle, c0, c1) = BACKGROUNDS[bd.preset % BACKGROUNDS.len()];
     // Mirrors gpui's linear_gradient shader (shaders.hlsl gradient_color) so the
     // export matches the editor preview: scale the short-axis component of the
@@ -45,7 +44,6 @@ pub(super) fn compose_backdrop(content: &Pixmap, bd: &Backdrop, trim: Option<Rec
     let src = lay.src;
     let dst = Rect { x0: lay.img_x, y0: lay.img_y, x1: lay.img_x + src.w(), y1: lay.img_y + src.h() };
 
-    // soft shadow: blur an alpha mask on a downscaled buffer
     if bd.shadow {
         let blur_r = (src.w().min(src.h()) * 0.04).clamp(8.0, 48.0);
         let s = 4.0;
@@ -74,7 +72,6 @@ pub(super) fn compose_backdrop(content: &Pixmap, bd: &Backdrop, trim: Option<Rec
         }
     }
 
-    // screenshot, clipped to a rounded rect
     let mut mask = tiny_skia::Mask::new(cw, ch).unwrap();
     if let Some(path) = rrect_path(dst, bd.radius) {
         mask.fill_path(&path, FillRule::Winding, true, Transform::identity());
@@ -92,12 +89,10 @@ pub(super) fn compose_backdrop(content: &Pixmap, bd: &Backdrop, trim: Option<Rec
     pixmap_to_rgba(&out)
 }
 
-/// Transparent PNG of a window with a soft macOS-like drop shadow.
 pub fn window_shadow(img: &RgbaImage, scale: f32) -> RgbaImage {
     let pad = (40.0 * scale).round() as u32;
     let off = (10.0 * scale).round() as i64;
     let (w, h) = (img.width() + pad * 2, img.height() + pad * 2);
-    // alpha mask of the window, blurred at quarter resolution
     let s = 4u32;
     let mut mask = image::GrayImage::new(w / s + 1, h / s + 1);
     for y in 0..img.height() / s {

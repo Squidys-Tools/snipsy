@@ -1,7 +1,3 @@
-//! Floating Screenshots: always-on-top pinned captures.
-//! Drag to move · scroll to resize · Ctrl+scroll for opacity · arrows nudge ·
-//! L = Lock Mode (click-through) · Ctrl+C copy · Esc close.
-
 use crate::app::{self, state, state_mut, Capture};
 use crate::capture::{self, PRect};
 use crate::ui::{self, color, icon, Icon};
@@ -26,7 +22,6 @@ pub fn open(capture: Capture, cx: &mut App) {
     let (x, y) = capture::cursor_pos();
     let Some(m) = capture::monitor_at(x, y) else { return };
     let (iw, ih) = (capture.image.width() as f32, capture.image.height() as f32);
-    // fit within 80% of the work area at most
     let fit = ((m.work.w as f32 * 0.8) / iw).min((m.work.h as f32 * 0.8) / ih).min(1.0);
     let (w, h) = (((iw * fit) as i32).max(40), ((ih * fit) as i32).max(30));
     let rect = PRect { x: m.work.x + (m.work.w - w) / 2, y: m.work.y + (m.work.h - h) / 2, w, h };
@@ -130,7 +125,6 @@ impl PinView {
         // tiny / strip images (zmin capped at 1): still keep the window at least
         // 40x30 so it can be grabbed and its toolbar fits
         let (w, h) = (((iw * z).round() as i32).max(40), ((ih * z).round() as i32).max(30));
-        // zoom around the window centre
         let nr = PRect { x: r.x + (r.w - w) / 2, y: r.y + (r.h - h) / 2, w, h };
         self.zoom = z;
         platform::place_window(self.hwnd(), nr, true);

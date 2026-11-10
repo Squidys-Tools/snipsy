@@ -61,7 +61,6 @@ pub fn seg_dist(p: Pt, a: Pt, b: Pt) -> f32 {
     p.dist(pt(a.x + t * dx, a.y + t * dy))
 }
 
-/// CleanShot-style tapered arrow: thin tail growing into a solid head.
 pub fn arrow_polygon(a: Pt, b: Pt, width: f32) -> Vec<Pt> {
     let len = a.dist(b).max(1.0);
     let (ux, uy) = ((b.x - a.x) / len, (b.y - a.y) / len);
@@ -83,7 +82,6 @@ pub fn arrow_polygon(a: Pt, b: Pt, width: f32) -> Vec<Pt> {
     ]
 }
 
-/// Chaikin corner-cutting for smooth freehand strokes.
 pub fn smooth(points: &[Pt], iterations: usize) -> Vec<Pt> {
     let mut pts = simplify(points, 1.2);
     for _ in 0..iterations {
@@ -119,7 +117,6 @@ fn simplify(points: &[Pt], min_dist: f32) -> Vec<Pt> {
 }
 
 
-/// Cells of the area outside all spotlight rects (to be dimmed).
 pub fn spotlight_dim_cells(w: f32, h: f32, spots: &[Rect]) -> Vec<Rect> {
     if spots.is_empty() {
         return vec![];

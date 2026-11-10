@@ -6,7 +6,6 @@ pub mod color {
     pub fn accent_hover() -> Rgba {
         rgb(0x3395FF)
     }
-    /// Translucent HUD panel (dark vibrancy approximation).
     pub fn hud() -> Rgba {
         rgba(0x1E1E20E6)
     }

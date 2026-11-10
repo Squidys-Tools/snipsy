@@ -1,5 +1,3 @@
-//! Persistent user settings (%APPDATA%\Snipsy\settings.json).
-
 mod autostart;
 mod hotkey_recorder;
 pub mod view;
@@ -17,13 +15,9 @@ pub enum OverlayCorner {
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum AfterCapture {
-    /// Show the Quick Access Overlay.
     QuickAccess,
-    /// Copy straight to the clipboard.
     Copy,
-    /// Save straight to the export folder.
     Save,
-    /// Open the annotation editor.
     Annotate,
 }
 
@@ -173,7 +167,6 @@ impl Settings {
             }),
             Err(_) => Settings::default(),
         };
-        // make sure every action has a hotkey entry (new actions added later)
         for d in default_hotkeys() {
             if !s.hotkeys.iter().any(|h| h.action == d.action) {
                 s.hotkeys.push(d);
@@ -199,7 +192,6 @@ impl Settings {
     }
 }
 
-/// Human readable form of an accelerator ("ctrl+shift+Digit4" -> "Ctrl ⇧ 4").
 pub fn pretty_accel(accel: &str) -> String {
     accel
         .split('+')

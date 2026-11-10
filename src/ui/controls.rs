@@ -4,7 +4,6 @@ use super::theme::color;
 use gpui::prelude::*;
 use gpui::*;
 
-/// Square icon button used in HUD toolbars.
 pub fn icon_button(id: impl Into<ElementId>, path: Icon, active: bool) -> Stateful<Div> {
     div()
         .id(id)
@@ -20,7 +19,6 @@ pub fn icon_button(id: impl Into<ElementId>, path: Icon, active: bool) -> Statef
         .child(icon(path, px(18.), if active { color::text() } else { rgba(0xEBEBF5D0) }))
 }
 
-/// CleanShot style translucent pill button ("Copy" / "Save" on overlay cards).
 pub fn pill_button(id: impl Into<ElementId>, label: &'static str) -> Stateful<Div> {
     div()
         .id(id)
@@ -40,7 +38,6 @@ pub fn pill_button(id: impl Into<ElementId>, label: &'static str) -> Stateful<Di
         .child(label)
 }
 
-/// Standard text button.
 pub fn button(id: impl Into<ElementId>, label: impl Into<SharedString>, primary: bool) -> Stateful<Div> {
     div()
         .id(id)
@@ -61,7 +58,6 @@ pub fn button(id: impl Into<ElementId>, label: impl Into<SharedString>, primary:
         .child(label.into())
 }
 
-/// macOS style toggle switch.
 pub fn toggle(id: impl Into<ElementId>, on: bool) -> Stateful<Div> {
     const TRAVEL: f32 = 16.;
     let id = id.into();
@@ -87,7 +83,6 @@ pub fn toggle(id: impl Into<ElementId>, on: bool) -> Stateful<Div> {
         .child(knob)
 }
 
-/// Segmented control item.
 pub fn segment(id: impl Into<ElementId>, label: impl Into<SharedString>, active: bool) -> Stateful<Div> {
     div()
         .id(id)

@@ -31,8 +31,6 @@ impl Editor {
     }
 }
 
-/// Text annotations receive typed characters (including IME composition and
-/// non-ASCII input) through GPUI's platform input handler.
 impl EntityInputHandler for Editor {
     fn text_for_range(&mut self, range: std::ops::Range<usize>, adjusted: &mut Option<std::ops::Range<usize>>, _: &mut Window, _: &mut Context<Self>) -> Option<String> {
         let text = self.edited_text_mut()?.clone();

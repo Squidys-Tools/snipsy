@@ -1,5 +1,3 @@
-//! Global state and the command bus fed by the tray icon and global hotkeys.
-
 mod hotkeys;
 mod pipeline;
 mod tray;

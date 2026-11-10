@@ -5,7 +5,6 @@ use crate::capture;
 use gpui::*;
 
 impl OverlayView {
-    /// Copy this overlay's mode and aspect preset to the overlays on the other monitors.
     pub(super) fn sync_peers(&self, cx: &mut Context<Self>) {
         let (me, mode, aspect) = (self.monitor.rect, self.mode, self.aspect);
         cx.defer(move |cx| {
@@ -45,8 +44,6 @@ impl OverlayView {
         });
     }
 
-    /// Switch mode, putting the selection aside while in the Window sub-mode and
-    /// bringing it back on return to All-In-One.
     pub(super) fn set_mode(&mut self, mode: Mode) {
         self.mode = mode;
         if mode == Mode::Window {
@@ -59,8 +56,6 @@ impl OverlayView {
         }
     }
 
-    /// Apply a typed size to the overlay holding the selection (on any
-    /// monitor); only when none has one, create it here.
     pub(super) fn apply_size_routed(&mut self, dim: Dim, typed: String, full: Size<Pixels>, cx: &mut Context<Self>) {
         if self.selection.is_some() {
             self.apply_size(dim, &typed, full);
@@ -81,8 +76,6 @@ impl OverlayView {
         );
     }
 
-    /// Apply a typed width or height (physical px) to the selection, creating a
-    /// centred one if there is none. Keeps the aspect preset and the centre.
     fn apply_size(&mut self, dim: Dim, typed: &str, full: Size<Pixels>) {
         let Ok(v) = typed.parse::<u32>() else { return };
         if v == 0 {

@@ -21,8 +21,6 @@ pub(super) fn init_hotkeys(cx: &mut App) {
     }));
 }
 
-/// Unregister every global hotkey (e.g. while the settings recorder listens
-/// for a new combination). Call `register_hotkeys` to restore them.
 pub fn unregister_hotkeys(cx: &mut App) {
     let st = state_mut(cx);
     if let Some(mgr) = st.hotkey_manager.as_ref() {

@@ -40,7 +40,6 @@ impl OverlayView {
         let full = window.bounds().size;
         // gpui captures the mouse during a drag, so positions can lie outside the window
         let p = point(e.position.x.max(px(0.)).min(full.width), e.position.y.max(px(0.)).min(full.height));
-        // Shift locks to a square; otherwise the chosen aspect preset applies
         let ratio = if e.modifiers.shift { Some(1.0) } else { self.aspect.ratio() };
         match self.drag {
             Some(DragKind::New { start }) => {
@@ -64,7 +63,6 @@ impl OverlayView {
                 let r = ratio.unwrap_or(1.0);
                 let (x0, y0) = (orig.origin.x, orig.origin.y);
                 let (x1, y1) = (x0 + orig.size.width, y0 + orig.size.height);
-                // anchor = the fixed opposite corner / edge; edges grow the other side from it
                 let (anchor, q) = match handle {
                     Handle::NW => (point(x1, y1), p),
                     Handle::NE => (point(x0, y1), p),
@@ -109,7 +107,6 @@ impl OverlayView {
                     let kind = CaptureKind::Area;
                     self.capture_selection(kind, cx);
                 } else if matches!(drag, Some(DragKind::New { .. })) && self.mode == Mode::Area {
-                    // a plain click captures the window under the cursor (like CleanShot's space toggle)
                     self.selection = None;
                     if self.hovered_window.is_some() {
                         self.capture_window(cx);

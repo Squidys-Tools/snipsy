@@ -10,7 +10,6 @@ impl Editor {
         }
     }
 
-    /// Largest centred rect of the current crop aspect (full image when free).
     fn aspect_crop_rect(&self, w: f32, h: f32) -> Rect {
         let Some(r) = self.crop_aspect.ratio() else { return Rect { x0: 0.0, y0: 0.0, x1: w, y1: h } };
         let (cw, ch) = if w / h > r { (h * r, h) } else { (w, w / r) };
@@ -23,7 +22,6 @@ impl Editor {
         self.reset_crop();
     }
 
-    /// Resize to `w`×`h` (callers keep the aspect ratio; see `resize_by`).
     fn resize(&mut self, w: u32, h: u32) {
         let (ow, oh) = (self.doc.base.width(), self.doc.base.height());
         let (w, h) = (w.clamp(8, 16384), h.clamp(8, 16384));

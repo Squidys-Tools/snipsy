@@ -4,7 +4,6 @@ use tray_icon::menu::{Menu, MenuEvent, MenuId, MenuItem, PredefinedMenuItem};
 use tray_icon::{MouseButton, TrayIcon, TrayIconBuilder, TrayIconEvent};
 
 fn tray_icon_image() -> tray_icon::Icon {
-    // 32x32 rounded blue square with a white viewfinder
     let n = 32u32;
     let mut px = vec![0u8; (n * n * 4) as usize];
     for y in 0..n {

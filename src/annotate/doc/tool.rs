@@ -94,7 +94,6 @@ impl Tool {
         })
     }
 
-    /// Tools that use the color / stroke controls.
     pub fn uses_color(self) -> bool {
         !matches!(self, Tool::Select | Tool::Crop | Tool::Blur | Tool::Pixelate | Tool::Spotlight)
     }

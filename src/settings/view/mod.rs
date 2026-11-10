@@ -1,5 +1,3 @@
-//! Settings window (sidebar + grouped rows, modelled on CleanShot's preferences).
-
 mod sections;
 
 use super::autostart::launch_at_login;
@@ -79,7 +77,6 @@ fn save(cx: &mut App) {
 }
 
 impl SettingsView {
-    /// Cancel an in-progress recording and re-enable the global hotkeys.
     fn stop_recording(&mut self, cx: &mut Context<Self>) {
         if self.recording.take().is_some() {
             app::register_hotkeys(cx);

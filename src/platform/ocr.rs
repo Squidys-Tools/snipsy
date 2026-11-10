@@ -1,7 +1,6 @@
 use anyhow::{anyhow, Result};
 use image::RgbaImage;
 
-/// Recognise text using the built-in Windows OCR engine (on-device).
 /// Must be called off the UI thread; blocks until done.
 pub fn recognize_text(img: &RgbaImage) -> Result<String> {
     use windows::Graphics::Imaging::{BitmapAlphaMode, BitmapPixelFormat, SoftwareBitmap};

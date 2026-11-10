@@ -1,7 +1,6 @@
 use crate::annotate::doc::*;
 use image::{Rgba as IRgba, RgbaImage};
 
-/// Apply all blur / pixelate annotations directly to a copy of the base.
 pub fn apply_effects(base: &RgbaImage, anns: &[Annotation]) -> RgbaImage {
     let mut img = base.clone();
     for a in anns {
@@ -25,7 +24,6 @@ fn region(img: &RgbaImage, r: Rect) -> Option<(u32, u32, u32, u32)> {
 pub fn blur_region(img: &mut RgbaImage, r: Rect) {
     let Some((x, y, w, h)) = region(img, r) else { return };
     let sub = image::imageops::crop_imm(img, x, y, w, h).to_image();
-    // downscale + upscale is a cheap, strong low-pass
     let f = 6u32;
     let small = image::imageops::resize(&sub, (w / f).max(1), (h / f).max(1), image::imageops::FilterType::Triangle);
     let up = image::imageops::resize(&small, w, h, image::imageops::FilterType::Triangle);

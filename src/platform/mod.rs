@@ -1,5 +1,3 @@
-//! Thin Win32 / WinRT helpers that GPUI does not expose.
-
 mod clipboard;
 mod ocr;
 mod shell;

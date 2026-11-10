@@ -30,8 +30,6 @@ fn row(label: SharedString, sub: Option<SharedString>, control: AnyElement, last
             .gap(px(12.))
             .when(!last, |d| d.border_b_1().border_color(color::separator()))
             .child(
-                // Text shrinks and wraps; when the control no longer fits beside
-                // it, the control wraps onto its own line (right aligned).
                 div()
                     .flex_1()
                     .min_w(px(140.))

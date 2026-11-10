@@ -26,13 +26,9 @@ pub const PALETTE: [Rgba; 8] = [
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum TextStyle {
-    /// Colored text with a subtle dark outline.
     Outline,
-    /// Plain colored text.
     Plain,
-    /// White text on a colored rounded pill.
     Pill,
-    /// Colored text on a white rounded card.
     Card,
 }
 
@@ -93,7 +89,6 @@ impl Annotation {
         (self.width * 6.0).max(16.0 * self.floor_scale)
     }
 
-    /// Rough bounding box for hit-testing / selection.
     pub fn bounds(&self) -> Rect {
         let pad = self.width;
         match &self.shape {
@@ -163,8 +158,6 @@ impl Annotation {
         }
     }
 
-    /// Scale all coordinates by (sx, sy) and the stroke width by their mean
-    /// (used when the base image is resized).
     pub fn scale(&mut self, sx: f32, sy: f32) {
         let sc = |p: &mut Pt| {
             p.x *= sx;
@@ -202,8 +195,6 @@ impl Doc {
         Self { base, annotations: vec![], backdrop: Backdrop::default() }
     }
 
-    /// True when both docs hold the same content (same base image buffer,
-    /// annotations and backdrop).
     pub fn same_content(&self, o: &Doc) -> bool {
         Arc::ptr_eq(&self.base, &o.base) && self.annotations == o.annotations && self.backdrop == o.backdrop
     }

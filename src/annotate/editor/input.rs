@@ -48,8 +48,6 @@ impl Editor {
         }
     }
 
-    /// Start editing an existing text annotation (snapshotting for undo) and
-    /// sync the toolbar's text style from it.
     fn begin_edit_text(&mut self, id: u64) {
         self.commit_text();
         self.push_undo_tentative();
@@ -202,7 +200,6 @@ impl Editor {
                             if shift {
                                 pts.truncate(1);
                             }
-                            // book-style: keep the stroke horizontal while Shift is held
                             if shift {
                                 p.y = pts[0].y;
                             }
@@ -245,7 +242,6 @@ impl Editor {
         cx.notify();
     }
 
-    /// Mouse released outside the canvas: still finish the gesture.
     pub(super) fn on_up_out(&mut self, _: &MouseUpEvent, window: &mut Window, cx: &mut Context<Self>) {
         if self.drag.is_some() {
             self.finish_drag(window, cx);
@@ -284,7 +280,7 @@ impl Editor {
             }
         }
         if matches!(drag, Some(Drag::Move { .. })) && self.editing_text.is_none() {
-            self.drop_noop_undo(); // nothing moved
+            self.drop_noop_undo();
         }
         self.refresh_display(window);
         cx.notify();

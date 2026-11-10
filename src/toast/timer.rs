@@ -1,5 +1,3 @@
-//! Self-timer countdown; the HUD is a `ToastView` in countdown mode.
-
 use super::{close_all, open_toast, Toasts};
 use crate::app::{self, state};
 use crate::capture::{self, PRect};
@@ -7,12 +5,10 @@ use crate::history::CaptureKind;
 use gpui::*;
 use std::time::Duration;
 
-/// Whether a self-timer countdown (or its pending capture) is in progress.
 pub fn timer_running(cx: &App) -> bool {
     cx.try_global::<Toasts>().is_some_and(|t| t.timer_running)
 }
 
-/// Abort a running self-timer and remove its HUD. Returns whether one was running.
 pub fn cancel_timer(cx: &mut App) -> bool {
     let t = cx.default_global::<Toasts>();
     let was = t.timer_running;
@@ -29,8 +25,6 @@ fn timer_alive(gen: u64, cx: &mut App) -> bool {
     t.timer_running && t.timer_gen == gen
 }
 
-/// End timer `gen` early (if it is still the current one): drop its HUD and
-/// bring Quick Access back.
 fn end_timer(gen: u64, cx: &mut App) {
     if !timer_alive(gen, cx) {
         return;
@@ -41,7 +35,6 @@ fn end_timer(gen: u64, cx: &mut App) {
     }
 }
 
-/// Self-timer: big countdown HUD, then capture `area` (or the cursor's display).
 pub fn start_timer(area: Option<PRect>, cx: &mut App) {
     if state(cx).capturing || timer_running(cx) {
         return;
@@ -53,7 +46,6 @@ pub fn start_timer(area: Option<PRect>, cx: &mut App) {
     t.timer_running = true;
     t.countdown = Some(handle.into());
     let gen = t.timer_gen;
-    // keep Quick Access out of the timed shot (like overlay::start does)
     crate::quick::set_visible(false, cx);
     cx.spawn(async move |cx: &mut AsyncApp| {
         for left in (1..=secs).rev() {

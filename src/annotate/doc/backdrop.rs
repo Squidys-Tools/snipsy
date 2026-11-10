@@ -66,7 +66,6 @@ pub struct Backdrop {
     pub radius: f32,
     pub shadow: bool,
     pub aspect: Aspect,
-    /// Auto Balance: trim uniform borders so the content sits visually centred.
     pub balance: bool,
 }
 
@@ -84,7 +83,6 @@ impl Default for Backdrop {
     }
 }
 
-/// Where the (possibly trimmed) image sits inside the backdrop canvas.
 #[derive(Clone, Copy, Debug)]
 pub struct Layout {
     pub canvas_w: f32,
@@ -121,7 +119,6 @@ pub fn layout(img_w: f32, img_h: f32, bd: &Backdrop, trim: Option<Rect>) -> Layo
     }
 }
 
-/// Detect uniform borders (same color as the edge) for Auto Balance.
 pub fn balance_trim(img: &RgbaImage) -> Option<Rect> {
     let (w, h) = (img.width(), img.height());
     if w < 32 || h < 32 {
@@ -153,7 +150,6 @@ pub fn balance_trim(img: &RgbaImage) -> Option<Rect> {
     if top == 0 && left == 0 && bottom == h && right == w {
         return None;
     }
-    // keep an equal margin of the uniform color on every side
     let m = top.min(left).min(h - bottom).min(w - right).max(8) as f32;
     let m = m.min(24.0);
     Some(Rect {

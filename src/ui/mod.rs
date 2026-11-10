@@ -1,5 +1,3 @@
-//! Shared HUD look (CleanShot X-style translucent graphite, system-blue accent) and small reusable elements.
-
 mod assets;
 mod controls;
 mod image;

@@ -11,8 +11,6 @@ pub fn font_bold() -> Option<&'static FontArc> {
     F.get_or_init(|| load_font(&["segoeuib.ttf", "arialbd.ttf", "segoeui.ttf"])).as_ref()
 }
 
-/// Fonts consulted, in order, for characters the primary font lacks
-/// (symbols, emoji outlines, CJK, Korean).
 fn fallback_fonts() -> &'static [FontArc] {
     static F: OnceLock<Vec<FontArc>> = OnceLock::new();
     F.get_or_init(|| {
@@ -23,7 +21,6 @@ fn fallback_fonts() -> &'static [FontArc] {
     })
 }
 
-/// The font that should draw `ch`: the primary one if it has the glyph.
 pub(super) fn font_for(primary: &'static FontArc, ch: char) -> &'static FontArc {
     if ch.is_whitespace() || primary.glyph_id(ch).0 != 0 {
         return primary;

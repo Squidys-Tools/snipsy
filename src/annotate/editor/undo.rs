@@ -29,8 +29,6 @@ impl Editor {
         self.push_undo();
     }
 
-    /// Drop the last undo snapshot if it equals the current doc, restoring the
-    /// redo stack / dirty flag a tentative snapshot cleared.
     pub(super) fn drop_noop_undo(&mut self) {
         if self.undo.last().is_some_and(|d| d.same_content(&self.doc)) {
             self.undo.pop();

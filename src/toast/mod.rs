@@ -1,5 +1,3 @@
-//! Small HUD notifications ("Copied", "Saved") and the shared HUD window helper.
-
 mod timer;
 
 use crate::app;
@@ -15,7 +13,6 @@ pub use timer::{cancel_timer, start_timer, timer_running};
 #[derive(Default)]
 struct Toasts {
     windows: Vec<AnyWindowHandle>,
-    /// The self-timer countdown HUD (kept apart so other toasts do not close it).
     countdown: Option<AnyWindowHandle>,
     timer_running: bool,
     /// Bumped whenever a timer starts or is cancelled; a stale task bails out.
@@ -31,7 +28,6 @@ pub struct ToastView {
     closing: bool,
 }
 
-/// Open a non-activating, transparent, topmost HUD window at a physical rect.
 pub fn open_hud<V: Render + 'static>(
     cx: &mut App,
     rect: PRect,
@@ -129,7 +125,6 @@ fn open_toast(cx: &mut App, title: SharedString, body: SharedString, path: Optio
     Some(handle)
 }
 
-/// Drop a (removed) toast's handle from the list.
 fn forget(handle: AnyWindowHandle, cx: &mut App) {
     cx.default_global::<Toasts>().windows.retain(|w| *w != handle);
 }

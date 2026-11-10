@@ -53,7 +53,6 @@ impl OverlayView {
             };
             capture::round_corners(&mut img, 8.0 * scale);
             let img = if background {
-                // Backdrop padding is a fraction of the shorter image side.
                 let padding = pad_px / img.width().min(img.height()).max(1) as f32;
                 let mut doc = crate::annotate::doc::Doc::new(Arc::new(img));
                 doc.backdrop.enabled = true;

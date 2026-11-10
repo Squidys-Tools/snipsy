@@ -1,6 +1,3 @@
-//! Capture History window: browse, filter, restore, annotate, copy, pin
-//! or delete recent captures (kept for the configured retention period).
-
 use crate::app::{self, state, state_mut, Capture};
 use crate::history::{CaptureKind, HistoryEntry};
 use crate::ui::{self, color, icon, Icon};

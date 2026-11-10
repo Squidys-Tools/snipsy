@@ -1,5 +1,3 @@
-//! CPU rasterisation of a [`Doc`] to a final RGBA image (tiny-skia + ab_glyph).
-
 mod backdrop;
 mod effects;
 mod fonts;
@@ -100,7 +98,6 @@ fn stroke(w: f32, cap: LineCap) -> Stroke {
     Stroke { width: w, line_cap: cap, line_join: LineJoin::Round, ..Default::default() }
 }
 
-/// Draw a soft drop shadow beneath vector annotations (CleanShot adds a subtle one).
 fn shadow_paint() -> Paint<'static> {
     paint_of([0, 0, 0, 60])
 }
@@ -169,7 +166,6 @@ pub fn draw_annotation(pm: &mut Pixmap, a: &Annotation, t: Transform) {
     }
 }
 
-/// Full export: effects, spotlight, annotations, then backdrop composition.
 pub fn render(doc: &Doc) -> RgbaImage {
     let base = apply_effects(&doc.base, &doc.annotations);
     let (w, h) = (base.width() as f32, base.height() as f32);

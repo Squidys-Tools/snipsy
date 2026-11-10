@@ -1,7 +1,3 @@
-//! Capture history: every capture is stored as PNG (+ thumbnail) under
-//! %APPDATA%\Snipsy\history and indexed in history.json. Entries older than
-//! the configured retention are pruned on startup.
-
 pub mod view;
 
 use crate::settings::data_dir;
@@ -85,7 +81,6 @@ impl History {
         h
     }
 
-    /// Recreate entries from `<id>.png` / `<id>_t.png` pairs in the history folder.
     fn rebuild() -> Self {
         let d = dir();
         let mut entries: Vec<HistoryEntry> = std::fs::read_dir(&d)

@@ -10,7 +10,6 @@ pub fn hwnd_of(window: &gpui::Window) -> Option<HWND> {
     }
 }
 
-/// Force a window to an exact physical rect, optionally always-on-top.
 pub fn place_window(hwnd: HWND, r: PRect, topmost: bool) {
     place_window_ex(hwnd, r, topmost, true);
 }
@@ -68,7 +67,6 @@ pub fn window_rect(hwnd: HWND) -> PRect {
     PRect::from_rect(r)
 }
 
-/// Make a window ignore mouse input (clicks pass through to whatever is below).
 pub fn set_click_through(hwnd: HWND, enabled: bool) {
     unsafe {
         let ex = GetWindowLongW(hwnd, GWL_EXSTYLE) as u32;
@@ -81,7 +79,6 @@ pub fn set_click_through(hwnd: HWND, enabled: bool) {
     }
 }
 
-/// Hide from Alt-Tab / taskbar.
 pub fn set_tool_window(hwnd: HWND) {
     unsafe {
         let ex = GetWindowLongW(hwnd, GWL_EXSTYLE) as u32;
@@ -122,7 +119,6 @@ pub fn force_foreground(hwnd: HWND) {
     }
 }
 
-/// Clicking the window will not activate it (no focus stealing).
 pub fn set_no_activate(hwnd: HWND) {
     unsafe {
         let ex = GetWindowLongW(hwnd, GWL_EXSTYLE) as u32;

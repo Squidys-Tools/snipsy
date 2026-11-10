@@ -3,7 +3,6 @@ use super::theme::color;
 use gpui::prelude::*;
 use gpui::*;
 
-/// Custom window chrome: drag area plus Windows-style min / max / close.
 pub fn title_bar(title: impl Into<SharedString>, center: Option<AnyElement>, right: Option<AnyElement>) -> Div {
     let caption = |id: &'static str, icon_path: Icon, area: WindowControlArea, danger: bool| {
         div()

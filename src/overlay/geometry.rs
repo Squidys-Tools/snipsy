@@ -80,7 +80,6 @@ pub(super) fn ratio_corner(a: Point<Pixels>, p: Point<Pixels>, r: f32, full: Siz
     point(px(ax + sx * w), px(ay + sy * h))
 }
 
-/// Keep `b` inside a window of size `full` (shrinking it if it is larger).
 pub(super) fn clamp_into(mut b: Bounds<Pixels>, full: Size<Pixels>) -> Bounds<Pixels> {
     b.size.width = b.size.width.min(full.width);
     b.size.height = b.size.height.min(full.height);
