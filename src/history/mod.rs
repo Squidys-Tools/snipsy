@@ -2,6 +2,8 @@
 //! %APPDATA%\Snipsy\history and indexed in history.json. Entries older than
 //! the configured retention are pruned on startup.
 
+pub mod view;
+
 use crate::settings::data_dir;
 use chrono::{DateTime, Local};
 use image::RgbaImage;

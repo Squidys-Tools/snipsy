@@ -1,5 +1,9 @@
 //! Persistent user settings (%APPDATA%\Snipsy\settings.json).
 
+mod autostart;
+mod hotkey_recorder;
+pub mod view;
+
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 
