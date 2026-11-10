@@ -92,3 +92,39 @@ pub(super) fn clamp_into(mut b: Bounds<Pixels>, full: Size<Pixels>) -> Bounds<Pi
 pub(super) fn norm(a: Point<Pixels>, b: Point<Pixels>) -> Bounds<Pixels> {
     Bounds::from_corners(point(a.x.min(b.x), a.y.min(b.y)), point(a.x.max(b.x), a.y.max(b.y)))
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use core::prelude::v1::test;
+
+    fn corner(a: (f32, f32), p: (f32, f32), r: f32, full: (f32, f32)) -> (f32, f32) {
+        let c = ratio_corner(
+            point(px(a.0), px(a.1)),
+            point(px(p.0), px(p.1)),
+            r,
+            Size { width: px(full.0), height: px(full.1) },
+        );
+        (f32::from(c.x), f32::from(c.y))
+    }
+
+    #[test]
+    fn ratio_corner_follows_dominant_axis_direction_and_screen_edges() {
+        let full = (1000.0, 1000.0);
+        assert_eq!(corner((100.0, 100.0), (300.0, 150.0), 2.0, full), (300.0, 200.0));
+        assert_eq!(corner((100.0, 100.0), (120.0, 300.0), 1.0, full), (300.0, 300.0));
+        assert_eq!(corner((100.0, 100.0), (0.0, 50.0), 1.0, full), (0.0, 0.0));
+        assert_eq!(corner((900.0, 100.0), (1100.0, 150.0), 1.0, full), (1000.0, 200.0));
+    }
+
+    #[test]
+    fn clamp_into_moves_inside_and_shrinks_oversized_bounds() {
+        let full = Size { width: px(1000.), height: px(1000.) };
+        let b = |x: f32, y: f32, w: f32, h: f32| Bounds {
+            origin: point(px(x), px(y)),
+            size: Size { width: px(w), height: px(h) },
+        };
+        assert_eq!(clamp_into(b(-10., 950., 200., 100.), full), b(0., 900., 200., 100.));
+        assert_eq!(clamp_into(b(50., 60., 2000., 500.), full), b(0., 60., 1000., 500.));
+    }
+}

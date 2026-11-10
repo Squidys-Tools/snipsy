@@ -216,3 +216,54 @@ pub fn pretty_accel(accel: &str) -> String {
         .collect::<Vec<_>>()
         .join(" + ")
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn partial_json_loads_with_defaults_and_roundtrips() {
+        let s: Settings = serde_json::from_str(r#"{"play_sounds":false,"file_prefix":"X"}"#).unwrap();
+        assert!(!s.play_sounds);
+        assert_eq!(s.file_prefix, "X");
+        assert_eq!(s.window_padding, 48);
+        assert_eq!(s.overlay_corner, OverlayCorner::BottomLeft);
+        assert_eq!(s.hotkeys.len(), HotkeyAction::ALL.len());
+
+        let mut custom = Settings::default();
+        custom.after_capture = AfterCapture::Annotate;
+        custom.last_area = Some((1, 2, 3, 4));
+        custom.custom_colors = vec![[1, 2, 3, 255]];
+        let back: Settings = serde_json::from_str(&serde_json::to_string(&custom).unwrap()).unwrap();
+        assert_eq!(back.after_capture, AfterCapture::Annotate);
+        assert_eq!(back.last_area, Some((1, 2, 3, 4)));
+        assert_eq!(back.custom_colors, vec![[1, 2, 3, 255]]);
+    }
+
+    #[test]
+    fn default_hotkeys_cover_every_action_with_unique_accelerators() {
+        let hk = default_hotkeys();
+        for a in HotkeyAction::ALL {
+            assert_eq!(hk.iter().filter(|h| h.action == a).count(), 1);
+        }
+        let mut accels: Vec<_> = hk.iter().map(|h| h.accel.clone()).collect();
+        accels.sort();
+        accels.dedup();
+        assert_eq!(accels.len(), hk.len());
+    }
+
+    #[test]
+    fn hotkey_for_skips_disabled_entries() {
+        let mut s = Settings::default();
+        assert!(s.hotkey_for(HotkeyAction::OpenHistory).is_some());
+        s.hotkeys.iter_mut().find(|h| h.action == HotkeyAction::OpenHistory).unwrap().enabled = false;
+        assert!(s.hotkey_for(HotkeyAction::OpenHistory).is_none());
+    }
+
+    #[test]
+    fn pretty_accel_formats_modifiers_digits_and_keys() {
+        assert_eq!(pretty_accel("ctrl+shift+Digit4"), "Ctrl + Shift + 4");
+        assert_eq!(pretty_accel("Alt+KeyA"), "Alt + A");
+        assert_eq!(pretty_accel("super+F5"), "Win + F5");
+    }
+}

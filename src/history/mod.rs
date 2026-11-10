@@ -166,3 +166,37 @@ pub fn thumbnail(img: &RgbaImage, max: u32) -> RgbaImage {
     let (nw, nh) = (((w as f32 * s) as u32).max(1), ((h as f32 * s) as u32).max(1));
     image::imageops::resize(img, nw, nh, image::imageops::FilterType::Triangle)
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn history_index_roundtrips_entries() {
+        let e = HistoryEntry {
+            id: 42,
+            kind: CaptureKind::Timer,
+            created: Local::now(),
+            width: 640,
+            height: 480,
+            file: PathBuf::from("a/42.png"),
+            thumb: PathBuf::from("a/42_t.png"),
+        };
+        let h = History { entries: vec![e.clone()] };
+        let back: History = serde_json::from_str(&serde_json::to_string(&h).unwrap()).unwrap();
+        assert_eq!(back.entries.len(), 1);
+        let b = &back.entries[0];
+        assert_eq!((b.id, b.kind, b.created, b.width, b.height), (42, CaptureKind::Timer, e.created, 640, 480));
+        assert_eq!((&b.file, &b.thumb), (&e.file, &e.thumb));
+    }
+
+    #[test]
+    fn thumbnail_fits_max_keeps_aspect_never_upscales_and_never_collapses() {
+        let t = thumbnail(&RgbaImage::new(1000, 500), 480);
+        assert_eq!((t.width(), t.height()), (480, 240));
+        let small = thumbnail(&RgbaImage::new(100, 50), 480);
+        assert_eq!((small.width(), small.height()), (100, 50));
+        let thin = thumbnail(&RgbaImage::new(1, 5000), 480);
+        assert_eq!((thin.width(), thin.height()), (1, 480));
+    }
+}

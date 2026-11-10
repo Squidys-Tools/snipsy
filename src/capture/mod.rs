@@ -176,3 +176,28 @@ pub fn primary_monitor() -> Option<MonitorInfo> {
     let m = monitors();
     m.iter().find(|m| m.primary).or(m.first()).cloned()
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn prect_contains_is_half_open() {
+        let r = PRect { x: 10, y: 20, w: 5, h: 5 };
+        assert!(r.contains(10, 20));
+        assert!(r.contains(14, 24));
+        assert!(!r.contains(15, 24));
+        assert!(!r.contains(14, 25));
+        assert!(!r.contains(9, 20));
+    }
+
+    #[test]
+    fn prect_intersect_handles_overlap_negative_origin_and_touching() {
+        let a = PRect { x: -100, y: 0, w: 200, h: 100 };
+        let b = PRect { x: 0, y: 50, w: 300, h: 300 };
+        assert_eq!(a.intersect(&b), Some(PRect { x: 0, y: 50, w: 100, h: 50 }));
+        let touching = PRect { x: 100, y: 0, w: 10, h: 10 };
+        assert_eq!(a.intersect(&touching), None);
+        assert_eq!(a.intersect(&PRect { x: 500, y: 500, w: 1, h: 1 }), None);
+    }
+}

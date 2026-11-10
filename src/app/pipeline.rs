@@ -184,3 +184,22 @@ pub fn recognize_and_copy(img: Arc<RgbaImage>, cx: &mut App) {
     })
     .detach();
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use core::prelude::v1::test;
+
+    #[test]
+    fn unique_path_appends_increasing_suffix_before_extension() {
+        let dir = std::env::temp_dir().join(format!("snipsy-unique-path-{}", std::process::id()));
+        std::fs::create_dir_all(&dir).unwrap();
+        let p = dir.join("shot.png");
+        assert_eq!(unique_path(p.clone()), p);
+        std::fs::write(&p, b"x").unwrap();
+        assert_eq!(unique_path(p.clone()), dir.join("shot (2).png"));
+        std::fs::write(dir.join("shot (2).png"), b"x").unwrap();
+        assert_eq!(unique_path(p), dir.join("shot (3).png"));
+        std::fs::remove_dir_all(&dir).unwrap();
+    }
+}
