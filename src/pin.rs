@@ -1,10 +1,6 @@
-//! Floating Screenshots: always-on-top pinned captures.
-//! Drag to move · scroll to resize · Ctrl+scroll for opacity · arrows nudge ·
-//! L = Lock Mode (click-through) · Ctrl+C copy · Esc close.
-
 use crate::app::{self, state, state_mut, Capture};
 use crate::capture::{self, PRect};
-use crate::ui::{self, color, icon};
+use crate::ui::{self, color, icon, Icon};
 use crate::{annotate, platform};
 use gpui::prelude::*;
 use gpui::*;
@@ -26,7 +22,6 @@ pub fn open(capture: Capture, cx: &mut App) {
     let (x, y) = capture::cursor_pos();
     let Some(m) = capture::monitor_at(x, y) else { return };
     let (iw, ih) = (capture.image.width() as f32, capture.image.height() as f32);
-    // fit within 80% of the work area at most
     let fit = ((m.work.w as f32 * 0.8) / iw).min((m.work.h as f32 * 0.8) / ih).min(1.0);
     let (w, h) = (((iw * fit) as i32).max(40), ((ih * fit) as i32).max(30));
     let rect = PRect { x: m.work.x + (m.work.w - w) / 2, y: m.work.y + (m.work.h - h) / 2, w, h };
@@ -130,7 +125,6 @@ impl PinView {
         // tiny / strip images (zmin capped at 1): still keep the window at least
         // 40x30 so it can be grabbed and its toolbar fits
         let (w, h) = (((iw * z).round() as i32).max(40), ((ih * z).round() as i32).max(30));
-        // zoom around the window centre
         let nr = PRect { x: r.x + (r.w - w) / 2, y: r.y + (r.h - h) / 2, w, h };
         self.zoom = z;
         platform::place_window(self.hwnd(), nr, true);
@@ -168,7 +162,7 @@ impl Render for PinView {
         // label from the actual window size (it can change behind our back on a DPI switch)
         let iw = self.capture.image.width().max(1) as f32;
         let zoom = f32::from(window.bounds().size.width) * window.scale_factor() / iw;
-        let tb = |id: &'static str, path: &'static str| {
+        let tb = |id: &'static str, path: Icon| {
             div()
                 .id(id)
                 .size(px(24.))
@@ -227,21 +221,21 @@ impl Render for PinView {
                         .border_1()
                         .border_color(color::hud_border())
                         .on_mouse_down(MouseButton::Left, |_, _, cx| cx.stop_propagation())
-                        .child(tb("p-copy", "icons/copy.svg").on_click(cx.listener(|this, _, _, cx| app::copy_capture(&this.capture.clone(), cx))))
-                        .child(tb("p-edit", "icons/edit.svg").on_click(cx.listener(|this, _, window, cx| {
+                        .child(tb("p-copy", Icon::Copy).on_click(cx.listener(|this, _, _, cx| app::copy_capture(&this.capture.clone(), cx))))
+                        .child(tb("p-edit", Icon::Edit).on_click(cx.listener(|this, _, window, cx| {
                             let c = this.capture.clone();
                             this.close(window, cx);
                             cx.defer(move |cx| annotate::open(c, cx));
                         })))
-                        .child(tb("p-opacity", "icons/eye.svg").on_click(cx.listener(|this, _, _, cx| {
+                        .child(tb("p-opacity", Icon::Eye).on_click(cx.listener(|this, _, _, cx| {
                             this.opacity = if this.opacity > 0.9 { 0.7 } else if this.opacity > 0.6 { 0.45 } else { 1.0 };
                             cx.notify();
                         })))
-                        .child(tb("p-lock", "icons/lock.svg").on_click(cx.listener(|this, _, _, cx| {
+                        .child(tb("p-lock", Icon::Lock).on_click(cx.listener(|this, _, _, cx| {
                             this.set_locked(true);
                             cx.notify();
                         })))
-                        .child(tb("p-close", "icons/close.svg").on_click(cx.listener(|this, _, window, cx| this.close(window, cx)))),
+                        .child(tb("p-close", Icon::Close).on_click(cx.listener(|this, _, window, cx| this.close(window, cx)))),
                 )
                 .child(
                     div()
