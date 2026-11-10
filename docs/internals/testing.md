@@ -2,13 +2,15 @@
 
 ## What gets a test
 
-The crate has no tests yet. `cargo test` must still pass, and the first tests should go where pure logic is easiest to break:
+Tests live in a `#[cfg(test)] mod tests` at the bottom of the file that owns the logic. They cover pure logic only:
 
-- Parsing and persistence: `Settings::load` (defaults, hotkey backfill, scale clamp, `.bak` on bad JSON), `History::load` (retention, rebuild from PNGs), `pretty_accel`, `hotkey_recorder::accel_from`.
-- Geometry: `overlay::geometry` (`ratio_corner`, `clamp_into`), `PRect::intersect`, `annotate::doc` (`layout`, `balance_trim`, `Annotation::scale` and `translate`, `spotlight_dim_cells`, `smooth`).
-- Image logic: `render::apply_effects` regions, `unique_path`.
+- Parsing and persistence: settings JSON defaults and roundtrip, hotkey defaults, `pretty_accel`, the history index.
+- Geometry: `overlay::geometry` (`ratio_corner`, `clamp_into`), `PRect`, `annotate::doc` (hit testing, `layout`, `balance_trim`, `scale` and `translate`, `spotlight_dim_cells`, `smooth`).
+- Naming and sizing: `unique_path`, `thumbnail`.
 
 Everything else (windows, overlays, GPUI views, Win32 calls) is verified by running the app. Follow the rules in `AGENTS.md`: extend an existing test first, one layer, no sleeps, no comments in tests, and visual bugs get captures rather than tests.
+
+A module that does `use gpui::*` shadows `#[test]` with GPUI's macro. Add `use core::prelude::v1::test;` inside its test module.
 
 ## Verifying visuals
 
