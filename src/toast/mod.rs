@@ -72,8 +72,9 @@ pub fn open_hud<V: Render + 'static>(
     .ok()?;
     // gpui only picks up a size change that arrives outside an app update; until
     // then the view lays out for the default window size.
-    let hwnd = handle.update(cx, |_, window, _| platform::hwnd_of(window).map(|h| h.0 as isize)).ok()??;
-    cx.spawn(async move |_| platform::resync_size(windows::Win32::Foundation::HWND(hwnd as _))).detach();
+    if let Ok(Some(hwnd)) = handle.update(cx, |_, window, _| platform::hwnd_of(window).map(|h| h.0 as isize)) {
+        cx.spawn(async move |_| platform::resync_size(windows::Win32::Foundation::HWND(hwnd as _))).detach();
+    }
     Some(handle)
 }
 
