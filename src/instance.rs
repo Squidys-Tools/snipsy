@@ -19,7 +19,7 @@ pub(crate) fn single_instance() -> Option<InstanceGuard> {
     use windows::Win32::Foundation::{GetLastError, ERROR_ALREADY_EXISTS};
     use windows::Win32::System::Threading::CreateMutexW;
     unsafe {
-        let h = CreateMutexW(None, true, w!("Local\\SnipsySingleInstance")).ok()?;
+        let h = CreateMutexW(None, true, MUTEX).ok()?;
         if GetLastError() == ERROR_ALREADY_EXISTS {
             let _ = windows::Win32::Foundation::CloseHandle(h);
             return None;
@@ -30,7 +30,15 @@ pub(crate) fn single_instance() -> Option<InstanceGuard> {
 
 // argv travels as WM_COPYDATA to a hidden message-only window owned by a
 // background thread in the first instance.
+// Debug builds use their own identity so they run beside an installed release build.
+#[cfg(not(debug_assertions))]
+const MUTEX: PCWSTR = w!("Local\\SnipsySingleInstance");
+#[cfg(debug_assertions)]
+const MUTEX: PCWSTR = w!("Local\\SnipsySingleInstance-dev");
+#[cfg(not(debug_assertions))]
 const CLASS: PCWSTR = w!("SnipsyIpcWindow-6f1c2a52-8d3e-4b7a-9c41-2e5d7b90a3f4");
+#[cfg(debug_assertions)]
+const CLASS: PCWSTR = w!("SnipsyIpcWindow-dev-6f1c2a52-8d3e-4b7a-9c41-2e5d7b90a3f4");
 /// Tag in COPYDATASTRUCT::dwData ("SNIP").
 const MAGIC: usize = 0x534E_4950;
 
