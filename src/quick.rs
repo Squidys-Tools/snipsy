@@ -5,7 +5,7 @@
 use crate::app::{self, state, state_mut, Capture};
 use crate::capture::{self, PRect};
 use crate::settings::OverlayCorner;
-use crate::ui::{self, color, icon};
+use crate::ui::{self, color, icon, Icon};
 use crate::{annotate, pin, platform, toast};
 use gpui::prelude::*;
 use gpui::*;
@@ -250,7 +250,7 @@ impl QuickAccess {
     }
 }
 
-fn corner_button(id: (&'static str, u64), path: &'static str) -> Stateful<Div> {
+fn corner_button(id: (&'static str, u64), path: Icon) -> Stateful<Div> {
     div()
         .id(id)
         .size(px(26.))
@@ -346,7 +346,7 @@ impl Render for QuickAccess {
                                 }
                             })))
                             .child(
-                                corner_button(("close", id), "icons/close.svg")
+                                corner_button(("close", id), Icon::Close)
                                     .absolute()
                                     .top(px(8.))
                                     .right(px(8.))
@@ -356,7 +356,7 @@ impl Render for QuickAccess {
                                     })),
                             )
                             .child(
-                                corner_button(("pin", id), "icons/pin.svg")
+                                corner_button(("pin", id), Icon::Pin)
                                     .absolute()
                                     .top(px(8.))
                                     .left(px(8.))
@@ -368,7 +368,7 @@ impl Render for QuickAccess {
                                     })),
                             )
                             .child(
-                                corner_button(("edit", id), "icons/edit.svg")
+                                corner_button(("edit", id), Icon::Edit)
                                     .absolute()
                                     .bottom(px(8.))
                                     .left(px(8.))
@@ -380,7 +380,7 @@ impl Render for QuickAccess {
                                     })),
                             )
                             .child(
-                                corner_button(("ocr", id), "icons/ocr.svg")
+                                corner_button(("ocr", id), Icon::Ocr)
                                     .absolute()
                                     .bottom(px(8.))
                                     .right(px(8.))

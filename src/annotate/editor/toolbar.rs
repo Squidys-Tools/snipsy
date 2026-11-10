@@ -1,5 +1,5 @@
 use crate::annotate::doc::*;
-use crate::ui::{self, color, icon};
+use crate::ui::{self, color, icon, Icon};
 use gpui::prelude::*;
 use gpui::*;
 use super::Editor;
@@ -23,12 +23,12 @@ impl Editor {
         }
         tools
             .child(div().w(px(1.)).h(px(20.)).mx(px(4.)).bg(color::separator()))
-            .child(ui::icon_button("undo", "icons/undo.svg", false).when(self.undo.is_empty(), |d| d.opacity(0.35)).on_click(cx.listener(|this, _, w, cx| {
+            .child(ui::icon_button("undo", Icon::Undo, false).when(self.undo.is_empty(), |d| d.opacity(0.35)).on_click(cx.listener(|this, _, w, cx| {
                 this.do_undo();
                 this.refresh_display(w);
                 cx.notify();
             })))
-            .child(ui::icon_button("redo", "icons/redo.svg", false).when(self.redo.is_empty(), |d| d.opacity(0.35)).on_click(cx.listener(|this, _, w, cx| {
+            .child(ui::icon_button("redo", Icon::Redo, false).when(self.redo.is_empty(), |d| d.opacity(0.35)).on_click(cx.listener(|this, _, w, cx| {
                 this.do_redo();
                 this.refresh_display(w);
                 cx.notify();
@@ -42,7 +42,7 @@ impl Editor {
             .gap(px(6.))
             .px(px(8.))
             .child(
-                ui::icon_button("bg", "icons/background.svg", self.show_bg)
+                ui::icon_button("bg", Icon::Background, self.show_bg)
                     .tooltip(|_, cx| cx.new(|_| Tip("Background tool".into())).into())
                     .on_click(cx.listener(|this, _, _, cx| {
                         this.show_bg = !this.show_bg;
@@ -70,10 +70,10 @@ impl Editor {
                     .cursor(CursorStyle::OpenHand)
                     .tooltip(|_, cx| cx.new(|_| Tip("Drag into any app".into())).into())
                     .on_mouse_down(MouseButton::Left, cx.listener(|this, _, window, cx| this.export_drag(window, cx)))
-                    .child(icon("icons/drag.svg", px(14.), color::text_dim()))
+                    .child(icon(Icon::Drag, px(14.), color::text_dim()))
                     .child("Drag me"),
             )
-            .child(ui::icon_button("pin", "icons/pin.svg", false).tooltip(|_, cx| cx.new(|_| Tip("Pin to screen (Ctrl+P)".into())).into()).on_click(cx.listener(|this, _, _, cx| this.export_pin(cx))))
+            .child(ui::icon_button("pin", Icon::Pin, false).tooltip(|_, cx| cx.new(|_| Tip("Pin to screen (Ctrl+P)".into())).into()).on_click(cx.listener(|this, _, _, cx| this.export_pin(cx))))
             .child(ui::button("copy", "Copy", false).on_click(cx.listener(|this, _, _, cx| this.export_copy(cx))))
             .child(ui::button("save", "Save", true).on_click(cx.listener(|this, _, _, cx| this.export_save(cx))))
     }

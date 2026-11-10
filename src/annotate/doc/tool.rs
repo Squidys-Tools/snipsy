@@ -1,3 +1,5 @@
+use crate::ui::Icon;
+
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 pub enum Tool {
     Select,
@@ -53,22 +55,22 @@ impl Tool {
         }
     }
 
-    pub fn icon(self) -> &'static str {
+    pub fn icon(self) -> Icon {
         match self {
-            Tool::Select => "icons/cursor.svg",
-            Tool::Crop => "icons/crop.svg",
-            Tool::Arrow => "icons/arrow.svg",
-            Tool::Rect => "icons/rect.svg",
-            Tool::FilledRect => "icons/rect-filled.svg",
-            Tool::Ellipse => "icons/ellipse.svg",
-            Tool::Line => "icons/line.svg",
-            Tool::Pencil => "icons/pencil.svg",
-            Tool::Highlighter => "icons/highlighter.svg",
-            Tool::Text => "icons/text.svg",
-            Tool::Counter => "icons/counter.svg",
-            Tool::Blur => "icons/blur.svg",
-            Tool::Pixelate => "icons/pixelate.svg",
-            Tool::Spotlight => "icons/spotlight.svg",
+            Tool::Select => Icon::Cursor,
+            Tool::Crop => Icon::Crop,
+            Tool::Arrow => Icon::Arrow,
+            Tool::Rect => Icon::Rect,
+            Tool::FilledRect => Icon::RectFilled,
+            Tool::Ellipse => Icon::Ellipse,
+            Tool::Line => Icon::Line,
+            Tool::Pencil => Icon::Pencil,
+            Tool::Highlighter => Icon::Highlighter,
+            Tool::Text => Icon::Text,
+            Tool::Counter => Icon::Counter,
+            Tool::Blur => Icon::Blur,
+            Tool::Pixelate => Icon::Pixelate,
+            Tool::Spotlight => Icon::Spotlight,
         }
     }
 

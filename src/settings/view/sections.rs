@@ -3,7 +3,7 @@ use crate::app::{self, state, state_mut};
 use crate::platform;
 use crate::settings::autostart::{launch_at_login, set_launch_at_login};
 use crate::settings::{default_hotkeys, pretty_accel, AfterCapture, HotkeyAction, OverlayCorner};
-use crate::ui::{self, color, icon};
+use crate::ui::{self, color, icon, Icon};
 use gpui::prelude::*;
 use gpui::*;
 
@@ -112,7 +112,7 @@ impl SettingsView {
                         .flex()
                         .items_center()
                         .gap(px(8.))
-                        .child(icon("icons/folder.svg", px(14.), color::accent()))
+                        .child(icon(Icon::Folder, px(14.), color::accent()))
                         .child(div().text_size(px(13.)).text_color(color::text_dim()).child(folder_name))
                         .child(ui::button("choose", "Choose…", false).on_click(cx.listener(|_, _, _, cx| {
                             let rx = cx.prompt_for_paths(PathPromptOptions { files: false, directories: true, multiple: false, prompt: Some("Choose export folder".into()) });
@@ -344,7 +344,7 @@ impl SettingsView {
                 .items_center()
                 .justify_center()
                 .shadow_lg()
-                .child(icon("icons/area.svg", px(38.), rgb(0xFFFFFF))),
+                .child(icon(Icon::Area, px(38.), rgb(0xFFFFFF))),
         )
         .child(div().text_size(px(22.)).font_weight(FontWeight::BOLD).child("Snipsy"))
         .child(div().text_size(px(12.)).text_color(color::text_faint()).child(format!("Version {} · Rust + GPUI for Windows", env!("CARGO_PKG_VERSION"))))

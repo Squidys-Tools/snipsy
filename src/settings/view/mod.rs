@@ -7,7 +7,7 @@ use super::hotkey_recorder::accel_from;
 use crate::app::{self, state, state_mut};
 use crate::platform;
 use crate::settings::HotkeyAction;
-use crate::ui::{self, color, icon};
+use crate::ui::{self, color, icon, Icon};
 use gpui::prelude::*;
 use gpui::*;
 
@@ -106,7 +106,7 @@ impl SettingsView {
     }
 
     fn sidebar(&self, cx: &mut Context<Self>) -> impl IntoElement {
-        let item = |id: &'static str, label: &'static str, path: &'static str, tint: u32, s: Section, active: bool| {
+        let item = |id: &'static str, label: &'static str, path: Icon, tint: u32, s: Section, active: bool| {
             div()
                 .id(id)
                 .h(px(34.))
@@ -163,7 +163,7 @@ impl SettingsView {
                             .flex()
                             .items_center()
                             .justify_center()
-                            .child(icon("icons/area.svg", px(20.), rgb(0xFFFFFF))),
+                            .child(icon(Icon::Area, px(20.), rgb(0xFFFFFF))),
                     )
                     .child(
                         div()
@@ -173,12 +173,12 @@ impl SettingsView {
                             .child(div().text_size(px(11.)).text_color(color::text_faint()).child("Screenshot toolkit")),
                     ),
             )
-            .child(item("s-gen", "General", "icons/settings.svg", 0x8E8E93, Section::General, s == Section::General))
-            .child(item("s-keys", "Shortcuts", "icons/keyboard.svg", 0x636366, Section::Shortcuts, s == Section::Shortcuts))
-            .child(item("s-quick", "Quick Access", "icons/image.svg", 0x30B158, Section::QuickAccess, s == Section::QuickAccess))
-            .child(item("s-shots", "Screenshots", "icons/area.svg", 0x0A84FF, Section::Screenshots, s == Section::Screenshots))
+            .child(item("s-gen", "General", Icon::Settings, 0x8E8E93, Section::General, s == Section::General))
+            .child(item("s-keys", "Shortcuts", Icon::Keyboard, 0x636366, Section::Shortcuts, s == Section::Shortcuts))
+            .child(item("s-quick", "Quick Access", Icon::Image, 0x30B158, Section::QuickAccess, s == Section::QuickAccess))
+            .child(item("s-shots", "Screenshots", Icon::Area, 0x0A84FF, Section::Screenshots, s == Section::Screenshots))
             .child(div().flex_1())
-            .child(item("s-about", "About", "icons/sparkles.svg", 0xAF52DE, Section::About, s == Section::About))
+            .child(item("s-about", "About", Icon::Sparkles, 0xAF52DE, Section::About, s == Section::About))
     }
 
     fn content(&self, cx: &mut Context<Self>) -> AnyElement {

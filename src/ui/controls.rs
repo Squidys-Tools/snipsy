@@ -1,10 +1,10 @@
-use super::assets::icon;
+use super::assets::{icon, Icon};
 use super::theme::color;
 use gpui::prelude::*;
 use gpui::*;
 
 /// Square icon button used in HUD toolbars.
-pub fn icon_button(id: impl Into<ElementId>, path: &'static str, active: bool) -> Stateful<Div> {
+pub fn icon_button(id: impl Into<ElementId>, path: Icon, active: bool) -> Stateful<Div> {
     div()
         .id(id)
         .size(px(32.))

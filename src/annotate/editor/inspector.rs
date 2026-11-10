@@ -1,6 +1,6 @@
 use crate::annotate::doc::*;
 use crate::annotate::doc::{Rgba, TextStyle};
-use crate::ui::{self, color};
+use crate::ui::{self, color, Icon};
 use gpui::prelude::*;
 use gpui::*;
 use super::toolbar::Tip;
@@ -173,12 +173,12 @@ impl Editor {
         div()
             .flex()
             .gap(px(2.))
-            .child(ui::icon_button("rot-l", "icons/undo.svg", false).tooltip(|_, cx| cx.new(|_| Tip("Rotate left".into())).into()).on_click(cx.listener(|this, _, w, cx| {
+            .child(ui::icon_button("rot-l", Icon::Undo, false).tooltip(|_, cx| cx.new(|_| Tip("Rotate left".into())).into()).on_click(cx.listener(|this, _, w, cx| {
                 this.rotate(false);
                 this.refresh_display(w);
                 cx.notify();
             })))
-            .child(ui::icon_button("rot-r", "icons/redo.svg", false).tooltip(|_, cx| cx.new(|_| Tip("Rotate right".into())).into()).on_click(cx.listener(|this, _, w, cx| {
+            .child(ui::icon_button("rot-r", Icon::Redo, false).tooltip(|_, cx| cx.new(|_| Tip("Rotate right".into())).into()).on_click(cx.listener(|this, _, w, cx| {
                 this.rotate(true);
                 this.refresh_display(w);
                 cx.notify();

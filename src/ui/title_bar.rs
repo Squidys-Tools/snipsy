@@ -1,11 +1,11 @@
-use super::assets::icon;
+use super::assets::{icon, Icon};
 use super::theme::color;
 use gpui::prelude::*;
 use gpui::*;
 
 /// Custom window chrome: drag area plus Windows-style min / max / close.
 pub fn title_bar(title: impl Into<SharedString>, center: Option<AnyElement>, right: Option<AnyElement>) -> Div {
-    let caption = |id: &'static str, icon_path: &'static str, area: WindowControlArea, danger: bool| {
+    let caption = |id: &'static str, icon_path: Icon, area: WindowControlArea, danger: bool| {
         div()
             .id(id)
             .w(px(46.))
@@ -49,7 +49,7 @@ pub fn title_bar(title: impl Into<SharedString>, center: Option<AnyElement>, rig
         .children(center.map(|c| div().flex_none().child(c)))
         .child(div().flex_1().min_w(px(12.)).h_full().window_control_area(WindowControlArea::Drag))
         .children(right.map(|r| div().flex_none().child(r)))
-        .child(caption("min", "icons/minus.svg", WindowControlArea::Min, false))
-        .child(caption("max", "icons/maximize.svg", WindowControlArea::Max, false))
-        .child(caption("close", "icons/close.svg", WindowControlArea::Close, true))
+        .child(caption("min", Icon::Minus, WindowControlArea::Min, false))
+        .child(caption("max", Icon::Maximize, WindowControlArea::Max, false))
+        .child(caption("close", Icon::Close, WindowControlArea::Close, true))
 }

@@ -5,7 +5,21 @@ use std::borrow::Cow;
 pub struct Assets;
 
 macro_rules! icons {
-    ($($name:literal),* $(,)?) => {
+    ($($variant:ident => $name:literal),* $(,)?) => {
+        #[allow(dead_code)]
+        #[derive(Clone, Copy, Debug, PartialEq, Eq)]
+        pub enum Icon {
+            $($variant),*
+        }
+
+        impl Icon {
+            pub fn path(self) -> &'static str {
+                match self {
+                    $(Icon::$variant => concat!("icons/", $name, ".svg")),*
+                }
+            }
+        }
+
         fn icon_bytes(path: &str) -> Option<&'static [u8]> {
             match path {
                 $(concat!("icons/", $name, ".svg") => Some(include_bytes!(concat!("../../assets/icons/", $name, ".svg"))),)*
@@ -17,11 +31,18 @@ macro_rules! icons {
 }
 
 icons!(
-    "area", "fullscreen", "window", "timer", "ocr", "history", "pin", "copy", "save", "edit", "close",
-    "cursor", "crop", "arrow", "rect", "rect-filled", "ellipse", "line", "pencil", "highlighter", "text",
-    "counter", "blur", "pixelate", "spotlight", "undo", "redo", "trash", "background", "drag", "settings",
-    "check", "lock", "unlock", "folder", "restore", "keyboard", "image", "sparkles", "eye", "minus",
-    "maximize", "zoom-in", "zoom-out", "chevron-down", "more",
+    Area => "area", Fullscreen => "fullscreen", Window => "window", Timer => "timer", Ocr => "ocr",
+    History => "history", Pin => "pin", Copy => "copy", Save => "save", Edit => "edit", Close => "close",
+    Cursor => "cursor", Crop => "crop", Arrow => "arrow", Rect => "rect", RectFilled => "rect-filled",
+    Ellipse => "ellipse", Line => "line", Pencil => "pencil", Highlighter => "highlighter", Text => "text",
+    Counter => "counter", Blur => "blur", Pixelate => "pixelate", Spotlight => "spotlight", Undo => "undo",
+    Redo => "redo", Trash => "trash", Background => "background", Drag => "drag", Settings => "settings",
+    Check => "check", Lock => "lock", Unlock => "unlock", Folder => "folder", Restore => "restore",
+    Keyboard => "keyboard", Image => "image", Sparkles => "sparkles", Eye => "eye", Minus => "minus",
+    Maximize => "maximize", ZoomIn => "zoom-in", ZoomOut => "zoom-out", ChevronDown => "chevron-down",
+    More => "more", Camera => "camera", ExternalLink => "external-link", EyeOff => "eye-off",
+    FlipH => "flip-h", FlipV => "flip-v", Info => "info", Picker => "picker", Resize => "resize",
+    RotateLeft => "rotate-left", RotateRight => "rotate-right", Sound => "sound",
 );
 
 impl AssetSource for Assets {
@@ -33,6 +54,6 @@ impl AssetSource for Assets {
     }
 }
 
-pub fn icon(path: &'static str, size: Pixels, color: impl Into<Hsla>) -> Svg {
-    svg().path(path).size(size).flex_none().text_color(color.into())
+pub fn icon(icon: Icon, size: Pixels, color: impl Into<Hsla>) -> Svg {
+    svg().path(icon.path()).size(size).flex_none().text_color(color.into())
 }

@@ -3,7 +3,7 @@
 
 use crate::app::{self, state, state_mut, Capture};
 use crate::history::{CaptureKind, HistoryEntry};
-use crate::ui::{self, color, icon};
+use crate::ui::{self, color, icon, Icon};
 use crate::{annotate, pin, platform, quick};
 use gpui::prelude::*;
 use gpui::*;
@@ -140,7 +140,7 @@ impl Render for HistoryView {
             let id = e.id;
             let hovered = self.hovered == Some(id);
             let selected = self.selected == Some(id);
-            let action = |aid: (&'static str, u64), path: &'static str| {
+            let action = |aid: (&'static str, u64), path: Icon| {
                 div()
                     .id(aid)
                     .size(px(30.))
@@ -204,19 +204,19 @@ impl Render for HistoryView {
                                         .items_center()
                                         .justify_center()
                                         .gap(px(8.))
-                                        .child(action(("ha", id), "icons/edit.svg").on_click(cx.listener(move |_, _, _, cx| {
+                                        .child(action(("ha", id), Icon::Edit).on_click(cx.listener(move |_, _, _, cx| {
                                             cx.stop_propagation();
                                             with_capture(&e2, cx, |c, cx| annotate::open(c, cx));
                                         })))
-                                        .child(action(("hc", id), "icons/copy.svg").on_click(cx.listener(move |_, _, _, cx| {
+                                        .child(action(("hc", id), Icon::Copy).on_click(cx.listener(move |_, _, _, cx| {
                                             cx.stop_propagation();
                                             with_capture(&e3, cx, |c, cx| app::copy_capture(&c, cx));
                                         })))
-                                        .child(action(("hp", id), "icons/pin.svg").on_click(cx.listener(move |_, _, _, cx| {
+                                        .child(action(("hp", id), Icon::Pin).on_click(cx.listener(move |_, _, _, cx| {
                                             cx.stop_propagation();
                                             with_capture(&e4, cx, |c, cx| pin::open(c, cx));
                                         })))
-                                        .child(action(("hd", id), "icons/trash.svg").on_click(cx.listener(move |this, _, _, cx| {
+                                        .child(action(("hd", id), Icon::Trash).on_click(cx.listener(move |this, _, _, cx| {
                                             cx.stop_propagation();
                                             state_mut(cx).history.remove(id);
                                             this.hovered = None;
@@ -247,7 +247,7 @@ impl Render for HistoryView {
                                         .font_weight(FontWeight::SEMIBOLD)
                                         .cursor_pointer()
                                         .hover(|s| s.bg(color::accent_hover()))
-                                        .child(icon("icons/restore.svg", px(14.), rgb(0xFFFFFF)))
+                                        .child(icon(Icon::Restore, px(14.), rgb(0xFFFFFF)))
                                         .child("Restore")
                                         .on_click(cx.listener(move |this, _, _, cx| this.restore(&e5, cx))),
                                 )
@@ -310,7 +310,7 @@ impl Render for HistoryView {
                                 .flex_col()
                                 .items_center()
                                 .gap(px(10.))
-                                .child(icon("icons/history.svg", px(40.), color::text_faint()))
+                                .child(icon(Icon::History, px(40.), color::text_faint()))
                                 .child(div().text_size(px(15.)).text_color(color::text_dim()).child("No captures yet"))
                                 .child(div().text_size(px(12.)).text_color(color::text_faint()).child("Screenshots you take will appear here.")),
                         )

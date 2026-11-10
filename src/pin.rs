@@ -4,7 +4,7 @@
 
 use crate::app::{self, state, state_mut, Capture};
 use crate::capture::{self, PRect};
-use crate::ui::{self, color, icon};
+use crate::ui::{self, color, icon, Icon};
 use crate::{annotate, platform};
 use gpui::prelude::*;
 use gpui::*;
@@ -168,7 +168,7 @@ impl Render for PinView {
         // label from the actual window size (it can change behind our back on a DPI switch)
         let iw = self.capture.image.width().max(1) as f32;
         let zoom = f32::from(window.bounds().size.width) * window.scale_factor() / iw;
-        let tb = |id: &'static str, path: &'static str| {
+        let tb = |id: &'static str, path: Icon| {
             div()
                 .id(id)
                 .size(px(24.))
@@ -227,21 +227,21 @@ impl Render for PinView {
                         .border_1()
                         .border_color(color::hud_border())
                         .on_mouse_down(MouseButton::Left, |_, _, cx| cx.stop_propagation())
-                        .child(tb("p-copy", "icons/copy.svg").on_click(cx.listener(|this, _, _, cx| app::copy_capture(&this.capture.clone(), cx))))
-                        .child(tb("p-edit", "icons/edit.svg").on_click(cx.listener(|this, _, window, cx| {
+                        .child(tb("p-copy", Icon::Copy).on_click(cx.listener(|this, _, _, cx| app::copy_capture(&this.capture.clone(), cx))))
+                        .child(tb("p-edit", Icon::Edit).on_click(cx.listener(|this, _, window, cx| {
                             let c = this.capture.clone();
                             this.close(window, cx);
                             cx.defer(move |cx| annotate::open(c, cx));
                         })))
-                        .child(tb("p-opacity", "icons/eye.svg").on_click(cx.listener(|this, _, _, cx| {
+                        .child(tb("p-opacity", Icon::Eye).on_click(cx.listener(|this, _, _, cx| {
                             this.opacity = if this.opacity > 0.9 { 0.7 } else if this.opacity > 0.6 { 0.45 } else { 1.0 };
                             cx.notify();
                         })))
-                        .child(tb("p-lock", "icons/lock.svg").on_click(cx.listener(|this, _, _, cx| {
+                        .child(tb("p-lock", Icon::Lock).on_click(cx.listener(|this, _, _, cx| {
                             this.set_locked(true);
                             cx.notify();
                         })))
-                        .child(tb("p-close", "icons/close.svg").on_click(cx.listener(|this, _, window, cx| this.close(window, cx)))),
+                        .child(tb("p-close", Icon::Close).on_click(cx.listener(|this, _, window, cx| this.close(window, cx)))),
                 )
                 .child(
                     div()

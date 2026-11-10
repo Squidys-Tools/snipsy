@@ -5,7 +5,7 @@ mod timer;
 use crate::app;
 use crate::capture::{self, PRect};
 use crate::platform;
-use crate::ui::{self, color, icon};
+use crate::ui::{self, color, icon, Icon};
 use gpui::prelude::*;
 use gpui::*;
 use std::path::PathBuf;
@@ -186,7 +186,7 @@ impl Render for ToastView {
                             .flex()
                             .items_center()
                             .justify_center()
-                            .child(icon("icons/check.svg", px(18.), rgb(0xFFFFFF))),
+                            .child(icon(Icon::Check, px(18.), rgb(0xFFFFFF))),
                     )
                     .child(
                         div()

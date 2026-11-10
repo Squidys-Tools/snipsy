@@ -2,11 +2,11 @@ use super::geometry::{Aspect, Dim};
 use super::{close_all, with_selection_holder, OverlayView};
 use crate::app::{self, Command, Mode};
 use crate::history::CaptureKind;
-use crate::ui::{self, color, icon};
+use crate::ui::{self, color, icon, Icon};
 use gpui::prelude::*;
 use gpui::*;
 
-fn item(id: &'static str, icon_path: &'static str, label: &'static str, active: bool) -> Stateful<Div> {
+fn item(id: &'static str, icon_path: Icon, label: &'static str, active: bool) -> Stateful<Div> {
     div()
         .id(id)
         .w(px(68.))
@@ -62,7 +62,7 @@ impl OverlayView {
 
     fn hud_modes(&self, cx: &mut Context<Self>) -> Div {
         panel()
-            .child(item("hud-area", "icons/area.svg", "Area", self.mode == Mode::AllInOne).on_click(cx.listener(|this, _, _, cx| {
+            .child(item("hud-area", Icon::Area, "Area", self.mode == Mode::AllInOne).on_click(cx.listener(|this, _, _, cx| {
                 if this.selection.is_some() && this.mode == Mode::AllInOne {
                     this.capture_selection(CaptureKind::Area, cx);
                 } else {
@@ -71,19 +71,19 @@ impl OverlayView {
                     cx.notify();
                 }
             })))
-            .child(item("hud-full", "icons/fullscreen.svg", "Fullscreen", false).on_click(cx.listener(|this, _, _, cx| this.capture_fullscreen(cx))))
-            .child(item("hud-window", "icons/window.svg", "Window", self.mode == Mode::Window).on_click(cx.listener(|this, _, _, cx| {
+            .child(item("hud-full", Icon::Fullscreen, "Fullscreen", false).on_click(cx.listener(|this, _, _, cx| this.capture_fullscreen(cx))))
+            .child(item("hud-window", Icon::Window, "Window", self.mode == Mode::Window).on_click(cx.listener(|this, _, _, cx| {
                 this.set_mode(Mode::Window);
                 this.update_hover();
                 this.sync_peers(cx);
                 cx.notify();
             })))
-            .child(item("hud-timer", "icons/timer.svg", "Timer", false).on_click(cx.listener(|this, _, _, cx| {
+            .child(item("hud-timer", Icon::Timer, "Timer", false).on_click(cx.listener(|this, _, _, cx| {
                 let area = this.selection.and_then(|s| this.crop(s)).map(|c| c.1);
                 close_all(cx, move |cx| app::run(Command::SelfTimer(area), cx));
             })))
             .child(sep())
-            .child(item("hud-ocr", "icons/ocr.svg", "OCR", self.mode == Mode::Ocr).on_click(cx.listener(|this, _, _, cx| {
+            .child(item("hud-ocr", Icon::Ocr, "OCR", self.mode == Mode::Ocr).on_click(cx.listener(|this, _, _, cx| {
                 if this.selection.is_some() {
                     this.mode = Mode::Ocr;
                     this.capture_selection(CaptureKind::Area, cx);
