@@ -3,7 +3,6 @@ use crate::annotate::doc::{Rgba, TextStyle};
 use crate::ui::{self, color, Icon};
 use gpui::prelude::*;
 use gpui::*;
-use super::toolbar::Tip;
 use super::{Editor, RESIZE_FIT, RESIZE_PRESETS, STROKES};
 
 impl Editor {
@@ -16,7 +15,6 @@ impl Editor {
         let resize_controls = self.resize_controls(cx);
 
         let (_, z) = self.view.get();
-        let sf = 1.0; // zoom shown relative to image pixels
         div()
             .h(px(48.))
             .flex_none()
@@ -36,7 +34,7 @@ impl Editor {
                 div()
                     .text_size(px(12.))
                     .text_color(color::text_faint())
-                    .child(format!("{} × {}  ·  {:.0}%", self.doc.base.width(), self.doc.base.height(), z * 100.0 * sf)),
+                    .child(format!("{} × {}  ·  {:.0}%", self.doc.base.width(), self.doc.base.height(), z * 100.0)),
             )
     }
 
@@ -69,26 +67,12 @@ impl Editor {
                 })));
             }
         }
-        colors = colors.child(
-            div()
-                .id("eyedropper")
-                .ml(px(4.))
-                .h(px(24.))
-                .px(px(8.))
-                .flex()
-                .items_center()
-                .rounded(px(6.))
-                .text_size(px(12.))
-                .cursor_pointer()
-                .text_color(if self.eyedropper { color::accent() } else { color::text_dim() })
-                .when(self.eyedropper, |d| d.bg(color::selected()))
-                .hover(|s| s.bg(color::hover()))
-                .child("Pick color")
-                .on_click(cx.listener(|this, _, _, cx| {
-                    this.eyedropper = !this.eyedropper;
-                    cx.notify();
-                })),
-        );
+        colors = colors.child(ui::icon_button("eyedropper", Icon::Picker, self.eyedropper).ml(px(2.)).tooltip(ui::tip("Pick a color from the image")).on_click(cx.listener(
+            |this, _, _, cx| {
+                this.eyedropper = !this.eyedropper;
+                cx.notify();
+            },
+        )));
         colors
     }
 
@@ -173,27 +157,27 @@ impl Editor {
         div()
             .flex()
             .gap(px(2.))
-            .child(ui::icon_button("rot-l", Icon::Undo, false).tooltip(|_, cx| cx.new(|_| Tip("Rotate left".into())).into()).on_click(cx.listener(|this, _, w, cx| {
+            .child(ui::icon_button("rot-l", Icon::RotateLeft, false).tooltip(ui::tip("Rotate left")).on_click(cx.listener(|this, _, w, cx| {
                 this.rotate(false);
                 this.refresh_display(w);
                 cx.notify();
             })))
-            .child(ui::icon_button("rot-r", Icon::Redo, false).tooltip(|_, cx| cx.new(|_| Tip("Rotate right".into())).into()).on_click(cx.listener(|this, _, w, cx| {
+            .child(ui::icon_button("rot-r", Icon::RotateRight, false).tooltip(ui::tip("Rotate right")).on_click(cx.listener(|this, _, w, cx| {
                 this.rotate(true);
                 this.refresh_display(w);
                 cx.notify();
             })))
-            .child(ui::segment("flip-h", "Flip H", false).on_click(cx.listener(|this, _, w, cx| {
+            .child(ui::icon_button("flip-h", Icon::FlipH, false).tooltip(ui::tip("Flip horizontally")).on_click(cx.listener(|this, _, w, cx| {
                 this.flip(true);
                 this.refresh_display(w);
                 cx.notify();
             })))
-            .child(ui::segment("flip-v", "Flip V", false).on_click(cx.listener(|this, _, w, cx| {
+            .child(ui::icon_button("flip-v", Icon::FlipV, false).tooltip(ui::tip("Flip vertically")).on_click(cx.listener(|this, _, w, cx| {
                 this.flip(false);
                 this.refresh_display(w);
                 cx.notify();
             })))
-            .child(ui::segment("resize", "Resize", self.show_resize).on_click(cx.listener(|this, _, _, cx| {
+            .child(ui::icon_button("resize", Icon::Resize, self.show_resize).tooltip(ui::tip("Resize")).on_click(cx.listener(|this, _, _, cx| {
                 this.show_resize = !this.show_resize;
                 cx.notify();
             })))

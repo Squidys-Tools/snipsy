@@ -63,6 +63,8 @@ Windows only. There is no scrolling capture, screen recording or cloud upload; d
 - Comments: default to no comment. Write one only for a constraint, an external quirk, or an invariant the code can't show, in one line where you can and four at most. Don't restate names or signatures, narrate steps, or record history. No divider comments.
 - Tests: test only behaviour that can break: parsing, persistence, geometry and other pure logic. Extend an existing test before adding one. Test at one layer. No sleeps or timeouts. Visual bugs get captures, not tests. Tests carry no comments.
 - Shared controls (buttons, toggles, segmented controls, icons, theme colours) live in `src/ui`. Reuse them; do not restyle per window.
+- Colours come from `ui::color` tokens, tooltips from `ui::tip`, and motion from `ui::enter` / `ui::fade_in` / `ui::fade_out` (GPUI `with_animation`). Keep motion short and only on entrances, exits and state changes.
+- Animation uses GPUI's built-in `with_animation`. The `gpui-motion` crate targets the `gpui-ce` fork, whose API this app does not build against.
 - Win32 calls that GPUI does not cover go in `src/platform`, not inline in views.
 - Capture code stays in physical pixels; convert to logical only at the GPUI boundary.
 - Anything the annotation exporter draws must match the live editor. See `docs/internals/annotation-rendering.md`.

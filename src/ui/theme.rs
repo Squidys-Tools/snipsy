@@ -46,6 +46,21 @@ pub mod color {
     pub fn danger() -> Rgba {
         rgb(0xFF453A)
     }
+    pub fn on_accent() -> Rgba {
+        rgb(0xFFFFFF)
+    }
+    pub fn control() -> Rgba {
+        rgba(0xFFFFFF1F)
+    }
+    pub fn control_hover() -> Rgba {
+        rgba(0xFFFFFF2E)
+    }
+    pub fn field() -> Rgba {
+        rgba(0xFFFFFF14)
+    }
+    pub fn raised() -> Rgba {
+        rgb(0x3A3A3C)
+    }
 }
 
 pub const FONT: &str = "Segoe UI";

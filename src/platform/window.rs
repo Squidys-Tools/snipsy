@@ -50,6 +50,16 @@ pub fn move_window_by(hwnd: HWND, dx: i32, dy: i32) {
     }
 }
 
+/// Make the window re-announce its current size (two real size changes, since an unchanged size sends nothing).
+pub fn resync_size(hwnd: HWND) {
+    let r = window_rect(hwnd);
+    let flags = SWP_NOMOVE | SWP_NOZORDER | SWP_NOACTIVATE;
+    unsafe {
+        let _ = SetWindowPos(hwnd, None, 0, 0, r.w, r.h + 1, flags);
+        let _ = SetWindowPos(hwnd, None, 0, 0, r.w, r.h, flags);
+    }
+}
+
 pub fn window_rect(hwnd: HWND) -> PRect {
     let mut r = windows::Win32::Foundation::RECT::default();
     unsafe {

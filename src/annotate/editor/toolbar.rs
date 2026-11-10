@@ -13,7 +13,7 @@ impl Editor {
             }
             tools = tools.child(
                 ui::icon_button(("tool", i), t.icon(), self.tool == t)
-                    .tooltip(move |_, cx| cx.new(|_| Tip(t.label().into())).into())
+                    .tooltip(ui::tip(t.label()))
                     .on_click(cx.listener(move |this, _, window, cx| {
                         this.set_tool(t);
                         window.focus(&this.focus);
@@ -43,7 +43,7 @@ impl Editor {
             .px(px(8.))
             .child(
                 ui::icon_button("bg", Icon::Background, self.show_bg)
-                    .tooltip(|_, cx| cx.new(|_| Tip("Background tool".into())).into())
+                    .tooltip(ui::tip("Background tool"))
                     .on_click(cx.listener(|this, _, _, cx| {
                         this.show_bg = !this.show_bg;
                         if this.show_bg && !this.doc.backdrop.enabled {
@@ -62,36 +62,19 @@ impl Editor {
                     .items_center()
                     .gap(px(6.))
                     .rounded(px(7.))
-                    .bg(rgba(0xFFFFFF14))
+                    .bg(color::field())
                     .border_1()
-                    .border_color(rgba(0xFFFFFF1F))
+                    .border_color(color::control())
                     .text_size(px(12.))
                     .text_color(color::text_dim())
                     .cursor(CursorStyle::OpenHand)
-                    .tooltip(|_, cx| cx.new(|_| Tip("Drag into any app".into())).into())
+                    .tooltip(ui::tip("Drag into any app"))
                     .on_mouse_down(MouseButton::Left, cx.listener(|this, _, window, cx| this.export_drag(window, cx)))
                     .child(icon(Icon::Drag, px(14.), color::text_dim()))
                     .child("Drag me"),
             )
-            .child(ui::icon_button("pin", Icon::Pin, false).tooltip(|_, cx| cx.new(|_| Tip("Pin to screen (Ctrl+P)".into())).into()).on_click(cx.listener(|this, _, _, cx| this.export_pin(cx))))
+            .child(ui::icon_button("pin", Icon::Pin, false).tooltip(ui::tip("Pin to screen (Ctrl+P)")).on_click(cx.listener(|this, _, _, cx| this.export_pin(cx))))
             .child(ui::button("copy", "Copy", false).on_click(cx.listener(|this, _, _, cx| this.export_copy(cx))))
             .child(ui::button("save", "Save", true).on_click(cx.listener(|this, _, _, cx| this.export_save(cx))))
-    }
-}
-
-pub(super) struct Tip(pub(super) SharedString);
-impl Render for Tip {
-    fn render(&mut self, _: &mut Window, _: &mut Context<Self>) -> impl IntoElement {
-        div()
-            .px(px(8.))
-            .py(px(4.))
-            .rounded(px(6.))
-            .bg(rgb(0x3A3A3C))
-            .border_1()
-            .border_color(color::hud_border())
-            .text_size(px(12.))
-            .font_family(ui::FONT)
-            .text_color(color::text())
-            .child(self.0.clone())
     }
 }

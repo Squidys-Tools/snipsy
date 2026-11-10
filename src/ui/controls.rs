@@ -1,4 +1,5 @@
 use super::assets::{icon, Icon};
+use super::motion;
 use super::theme::color;
 use gpui::prelude::*;
 use gpui::*;
@@ -15,7 +16,7 @@ pub fn icon_button(id: impl Into<ElementId>, path: Icon, active: bool) -> Statef
         .rounded(px(7.))
         .cursor_pointer()
         .when(active, |d| d.bg(color::selected()))
-        .when(!active, |d| d.hover(|s| s.bg(color::hover())))
+        .when(!active, |d| d.hover(|s| s.bg(color::hover())).active(|s| s.bg(color::selected())))
         .child(icon(path, px(18.), if active { color::text() } else { rgba(0xEBEBF5D0) }))
 }
 
@@ -35,6 +36,7 @@ pub fn pill_button(id: impl Into<ElementId>, label: &'static str) -> Stateful<Di
         .font_weight(FontWeight::SEMIBOLD)
         .cursor_pointer()
         .hover(|s| s.bg(rgb(0xFFFFFF)))
+        .active(|s| s.opacity(0.8))
         .child(label)
 }
 
@@ -51,15 +53,27 @@ pub fn button(id: impl Into<ElementId>, label: impl Into<SharedString>, primary:
         .text_size(px(13.))
         .font_weight(FontWeight::MEDIUM)
         .cursor_pointer()
-        .when(primary, |d| d.bg(color::accent()).text_color(rgb(0xFFFFFF)).hover(|s| s.bg(color::accent_hover())))
+        .active(|s| s.opacity(0.8))
+        .when(primary, |d| d.bg(color::accent()).text_color(color::on_accent()).hover(|s| s.bg(color::accent_hover())))
         .when(!primary, |d| {
-            d.bg(rgba(0xFFFFFF1F)).text_color(color::text()).hover(|s| s.bg(rgba(0xFFFFFF2E)))
+            d.bg(color::control()).text_color(color::text()).hover(|s| s.bg(color::control_hover()))
         })
         .child(label.into())
 }
 
 /// macOS style toggle switch.
 pub fn toggle(id: impl Into<ElementId>, on: bool) -> Stateful<Div> {
+    const TRAVEL: f32 = 16.;
+    let id = id.into();
+    let knob = div().size(px(18.)).rounded_full().bg(color::on_accent()).shadow_sm();
+    let knob = if motion::just_changed(&id, on) {
+        knob.with_animation(if on { "on" } else { "off" }, Animation::new(motion::FAST).with_easing(ease_in_out), move |k, t| {
+            k.ml(px(TRAVEL * if on { t } else { 1.0 - t }))
+        })
+        .into_any_element()
+    } else {
+        knob.ml(px(if on { TRAVEL } else { 0. })).into_any_element()
+    };
     div()
         .id(id)
         .w(px(38.))
@@ -68,10 +82,9 @@ pub fn toggle(id: impl Into<ElementId>, on: bool) -> Stateful<Div> {
         .rounded_full()
         .p(px(2.))
         .cursor_pointer()
-        .bg(if on { color::accent() } else { rgba(0xFFFFFF2E) })
+        .bg(if on { color::accent() } else { color::control_hover() })
         .flex()
-        .when(on, |d| d.justify_end())
-        .child(div().size(px(18.)).rounded_full().bg(rgb(0xFFFFFF)).shadow_sm())
+        .child(knob)
 }
 
 /// Segmented control item.

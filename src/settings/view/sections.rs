@@ -165,7 +165,7 @@ impl SettingsView {
                         .justify_center()
                         .rounded(px(7.))
                         .border_1()
-                        .border_color(if recording { color::accent().into() } else { rgba(0xFFFFFF1F) })
+                        .border_color(if recording { color::accent().into() } else { color::control() })
                         .bg(rgba(0x00000033))
                         .text_size(px(12.))
                         .text_color(if recording { color::accent().into() } else if enabled { color::text() } else { color::text_faint() })

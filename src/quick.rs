@@ -263,13 +263,16 @@ fn corner_button(id: (&'static str, u64), path: Icon) -> Stateful<Div> {
         .border_color(rgba(0xFFFFFF26))
         .cursor_pointer()
         .hover(|s| s.bg(rgba(0x3A3A3CF0)))
-        .child(icon(path, px(13.), rgb(0xFFFFFF)))
+        .active(|s| s.opacity(0.8))
+        .child(icon(path, px(13.), color::on_accent()))
 }
 
 impl Render for QuickAccess {
     fn render(&mut self, _: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
         let k = ui_scale(cx);
         let top_anchor = matches!(state(cx).settings.overlay_corner, OverlayCorner::TopLeft | OverlayCorner::TopRight);
+        let from_right = matches!(state(cx).settings.overlay_corner, OverlayCorner::TopRight | OverlayCorner::BottomRight);
+        let enter_dx = if from_right { 28. } else { -28. };
         let mut cards: Vec<AnyElement> = vec![];
         let order: Vec<usize> = if top_anchor { (0..self.cards.len()).rev().collect() } else { (0..self.cards.len()).collect() };
         for i in order {
@@ -321,7 +324,8 @@ impl Render for QuickAccess {
                 }))
                 .child(img(c.preview.clone()).absolute().size_full().object_fit(ObjectFit::Cover))
                 .when(hovered, |d| {
-                    d.child(
+                    d.child(ui::fade_in(
+                        ("card-hover", id),
                         div()
                             .absolute()
                             .size_full()
@@ -347,6 +351,7 @@ impl Render for QuickAccess {
                             })))
                             .child(
                                 corner_button(("close", id), Icon::Close)
+                                    .tooltip(ui::tip("Close"))
                                     .absolute()
                                     .top(px(8.))
                                     .right(px(8.))
@@ -357,6 +362,7 @@ impl Render for QuickAccess {
                             )
                             .child(
                                 corner_button(("pin", id), Icon::Pin)
+                                    .tooltip(ui::tip("Pin to screen"))
                                     .absolute()
                                     .top(px(8.))
                                     .left(px(8.))
@@ -369,6 +375,7 @@ impl Render for QuickAccess {
                             )
                             .child(
                                 corner_button(("edit", id), Icon::Edit)
+                                    .tooltip(ui::tip("Annotate"))
                                     .absolute()
                                     .bottom(px(8.))
                                     .left(px(8.))
@@ -381,6 +388,7 @@ impl Render for QuickAccess {
                             )
                             .child(
                                 corner_button(("ocr", id), Icon::Ocr)
+                                    .tooltip(ui::tip("Copy text"))
                                     .absolute()
                                     .bottom(px(8.))
                                     .right(px(8.))
@@ -403,10 +411,9 @@ impl Render for QuickAccess {
                                     .text_color(rgba(0xFFFFFFB3))
                                     .child(format!("{} × {}", c.image.width(), c.image.height())),
                             ),
-                    )
-                })
-                .into_any_element();
-            cards.push(card);
+                    ))
+                });
+            cards.push(ui::enter(("card-in", id), card, enter_dx, 0.).into_any_element());
         }
         div()
             .size_full()

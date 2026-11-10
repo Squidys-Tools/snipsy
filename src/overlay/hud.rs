@@ -19,7 +19,7 @@ fn item(id: &'static str, icon_path: Icon, label: &'static str, active: bool) ->
         .rounded(px(9.))
         .cursor_pointer()
         .when(active, |d| d.bg(color::selected()))
-        .when(!active, |d| d.hover(|s| s.bg(color::hover())))
+        .when(!active, |d| d.hover(|s| s.bg(color::hover())).active(|s| s.bg(color::selected())))
         .child(icon(icon_path, px(20.), color::text()))
         .child(div().text_size(px(12.)).text_color(color::text_dim()).child(label))
 }
@@ -47,6 +47,7 @@ fn sep() -> Div {
 
 impl OverlayView {
     pub(super) fn hud(&self, cx: &mut Context<Self>) -> impl IntoElement {
+        let bar = div().flex().gap(px(12.)).child(self.hud_modes(cx)).child(self.hud_options(cx));
         div()
             .absolute()
             .bottom(px(56.))
@@ -54,10 +55,8 @@ impl OverlayView {
             .right_0()
             .flex()
             .justify_center()
-            .gap(px(12.))
             .font_family(ui::FONT)
-            .child(self.hud_modes(cx))
-            .child(self.hud_options(cx))
+            .child(ui::enter("hud-in", bar, 0., 14.))
     }
 
     fn hud_modes(&self, cx: &mut Context<Self>) -> Div {
@@ -152,9 +151,9 @@ impl OverlayView {
             .items_center()
             .justify_center()
             .rounded(px(7.))
-            .bg(rgba(0xFFFFFF14))
+            .bg(color::field())
             .border_1()
-            .border_color(if active { color::accent().into() } else { rgba(0xFFFFFF14) })
+            .border_color(if active { color::accent().into() } else { color::field() })
             .text_size(px(14.))
             .text_color(if faint { color::text_faint() } else { color::text() })
             .cursor(CursorStyle::IBeam)

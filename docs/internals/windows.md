@@ -12,6 +12,14 @@ Never rely on `window_bounds` alone for position. GPUI takes logical bounds; the
 
 Pins are similar but must take focus (keys, scroll): `set_tool_window` instead of `set_no_activate`, then `force_foreground`.
 
+### Sizing a HUD
+
+GPUI only learns a window's new size when the resize arrives outside an app update. `open_hud` sizes the window while GPUI is still creating it, so the view first lays out for the default window size (thousands of pixels). A view that fills its window (`size_full`, centring) then draws its content off-screen and the HUD looks empty.
+
+`open_hud` therefore spawns `platform::resync_size`, which changes the height by one pixel and back so GPUI receives real size messages. Keep that call. Do not strip `WS_CAPTION` from a HUD to get rid of the invisible resize border: the frame change reaches the DirectX renderer before it has resources and panics.
+
+The client area of a HUD is 8 px narrower on the left, right and bottom than its window rect (GPUI keeps the resize border for title-bar-less windows). Lay out against the client size.
+
 ## DPI changes
 
 Moving a window onto a monitor with another DPI makes GPUI's `WM_DPICHANGED` handler resize it to the system-suggested rect. Consequences:

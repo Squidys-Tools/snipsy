@@ -30,11 +30,8 @@ pub fn title_bar(title: impl Into<SharedString>, center: Option<AnyElement>, rig
         .child(
             div()
                 .id("drag")
-                .flex_1()
+                .flex_shrink()
                 .min_w(px(60.))
-                .overflow_hidden()
-                .whitespace_nowrap()
-                .text_ellipsis()
                 .h_full()
                 .flex()
                 .items_center()
@@ -44,7 +41,7 @@ pub fn title_bar(title: impl Into<SharedString>, center: Option<AnyElement>, rig
                 .text_size(px(13.))
                 .font_weight(FontWeight::SEMIBOLD)
                 .text_color(color::text_dim())
-                .child(title.into()),
+                .child(div().min_w_0().truncate().child(title.into())),
         )
         .children(center.map(|c| div().flex_none().child(c)))
         .child(div().flex_1().min_w(px(12.)).h_full().window_control_area(WindowControlArea::Drag))

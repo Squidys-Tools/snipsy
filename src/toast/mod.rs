@@ -28,6 +28,7 @@ pub struct ToastView {
     body: SharedString,
     path: Option<PathBuf>,
     countdown: Option<u32>,
+    closing: bool,
 }
 
 /// Open a non-activating, transparent, topmost HUD window at a physical rect.
@@ -49,7 +50,7 @@ pub fn open_hud<V: Render + 'static>(
             b.contains(&bounds.center())
         })
         .map(|d| d.id());
-    cx.open_window(
+    let handle = cx.open_window(
         WindowOptions {
             window_bounds: Some(WindowBounds::Windowed(bounds)),
             titlebar: None,
@@ -72,7 +73,12 @@ pub fn open_hud<V: Render + 'static>(
             cx.new(|cx| build(window, cx))
         },
     )
-    .ok()
+    .ok()?;
+    // gpui only picks up a size change that arrives outside an app update; until
+    // then the view lays out for the default window size.
+    let hwnd = handle.update(cx, |_, window, _| platform::hwnd_of(window).map(|h| h.0 as isize)).ok()??;
+    cx.spawn(async move |_| platform::resync_size(windows::Win32::Foundation::HWND(hwnd as _))).detach();
+    Some(handle)
 }
 
 fn toast_rect(w: f32, h: f32) -> Option<(PRect, f32)> {
@@ -104,12 +110,17 @@ fn open_toast(cx: &mut App, title: SharedString, body: SharedString, path: Optio
     } else {
         rect
     };
-    let handle = open_hud(cx, rect, scale, move |_, _| ToastView { title, body, path, countdown })?;
+    let handle = open_hud(cx, rect, scale, move |_, _| ToastView { title, body, path, countdown, closing: false })?;
     if countdown.is_none() {
         cx.default_global::<Toasts>().windows.push(handle.into());
-        let t = app::delay(cx, 2600);
+        let (shown, fade) = (app::delay(cx, 2600), app::delay(cx, 2600 + ui::FAST.as_millis() as u64));
         cx.spawn(async move |cx: &mut AsyncApp| {
-            t.await;
+            shown.await;
+            let _ = handle.update(cx, |v, _, cx| {
+                v.closing = true;
+                cx.notify();
+            });
+            fade.await;
             let _ = handle.update(cx, |_, window, _| window.remove_window());
             let _ = cx.update(|cx| forget(handle.into(), cx));
         })
@@ -143,7 +154,8 @@ impl Render for ToastView {
                 .items_center()
                 .justify_center()
                 .font_family(ui::FONT)
-                .child(
+                .child(ui::enter(
+                    "in",
                     div()
                         .size(px(132.))
                         .rounded(px(28.))
@@ -157,16 +169,19 @@ impl Render for ToastView {
                         .gap(px(2.))
                         .child(div().text_size(px(56.)).font_weight(FontWeight::BOLD).text_color(color::text()).child(n.to_string()))
                         .child(div().text_size(px(12.)).text_color(color::text_dim()).child("Self-Timer")),
-                )
+                    0.,
+                    0.,
+                ))
                 .into_any_element();
         }
         let path = self.path.clone();
+        let closing = self.closing;
         div()
             .size_full()
             .p(px(6.))
             .font_family(ui::FONT)
-            .child(
-                div()
+            .child({
+                let card = div()
                     .size_full()
                     .flex()
                     .items_center()
@@ -186,7 +201,7 @@ impl Render for ToastView {
                             .flex()
                             .items_center()
                             .justify_center()
-                            .child(icon(Icon::Check, px(18.), rgb(0xFFFFFF))),
+                            .child(icon(Icon::Check, px(18.), color::on_accent())),
                     )
                     .child(
                         div()
@@ -203,8 +218,9 @@ impl Render for ToastView {
                             forget(window.window_handle(), cx);
                             window.remove_window();
                         })))
-                    }),
-            )
+                    });
+                if closing { ui::fade_out("out", card) } else { ui::enter("in", card, 0., 10.) }
+            })
             .into_any_element()
     }
 }

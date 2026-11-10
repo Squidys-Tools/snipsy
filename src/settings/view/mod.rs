@@ -116,7 +116,7 @@ impl SettingsView {
                 .gap(px(10.))
                 .rounded(px(8.))
                 .cursor_pointer()
-                .when(active, |d| d.bg(rgba(0xFFFFFF1F)))
+                .when(active, |d| d.bg(color::control()))
                 .when(!active, |d| d.hover(|st| st.bg(color::hover())))
                 .child(
                     div()

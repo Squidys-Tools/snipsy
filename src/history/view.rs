@@ -117,7 +117,7 @@ impl Render for HistoryView {
                 .font_weight(FontWeight::SEMIBOLD)
                 .cursor_pointer()
                 .when(active, |d| d.bg(color::accent()).text_color(rgb(0xFFFFFF)))
-                .when(!active, |d| d.bg(rgba(0xFFFFFF14)).text_color(color::text_dim()).hover(|s| s.bg(rgba(0xFFFFFF24))))
+                .when(!active, |d| d.bg(color::field()).text_color(color::text_dim()).hover(|s| s.bg(rgba(0xFFFFFF24))))
                 .child(label)
         };
         let filters = [
@@ -175,7 +175,7 @@ impl Render for HistoryView {
                             .rounded(px(14.))
                             .overflow_hidden()
                             .border(px(if selected { 3. } else { 1. }))
-                            .border_color(if selected { color::accent().into() } else { rgba(0xFFFFFF1F) })
+                            .border_color(if selected { color::accent().into() } else { color::control() })
                             .bg(color::group_bg())
                             .cursor_pointer()
                             .on_hover(cx.listener(move |this, h: &bool, _, cx| {
