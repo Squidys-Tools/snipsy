@@ -1,6 +1,6 @@
 use crate::app::{self, state, state_mut, Capture};
 use crate::capture::{self, PRect};
-use crate::ui::{self, color, icon, Icon};
+use crate::ui::{self, color, font_size, Icon};
 use crate::{annotate, platform};
 use gpui::prelude::*;
 use gpui::*;
@@ -162,18 +162,6 @@ impl Render for PinView {
         // label from the actual window size (it can change behind our back on a DPI switch)
         let iw = self.capture.image.width().max(1) as f32;
         let zoom = f32::from(window.bounds().size.width) * window.scale_factor() / iw;
-        let tb = |id: &'static str, path: Icon| {
-            div()
-                .id(id)
-                .size(px(24.))
-                .rounded(px(6.))
-                .flex()
-                .items_center()
-                .justify_center()
-                .cursor_pointer()
-                .hover(|s| s.bg(color::hover()))
-                .child(icon(path, px(14.), rgb(0xFFFFFF)))
-        };
         div()
             .id("pin")
             .size_full()
@@ -205,48 +193,56 @@ impl Render for PinView {
                     .absolute()
                     .size_full()
                     .border(px(BORDER))
-                    .border_color(if hovered { color::accent().into() } else { rgba(0xFFFFFF40) }),
+                    .border_color(if hovered { color::accent().into() } else { color::hud_border() }),
             )
             .when(hovered, |d| {
                 d.child(
                     div()
                         .absolute()
                         .top(px(8.))
-                        .right(px(8.))
+                        .left_0()
+                        .right_0()
                         .flex()
-                        .gap(px(2.))
-                        .p(px(3.))
-                        .rounded(px(9.))
-                        .bg(color::hud())
-                        .border_1()
-                        .border_color(color::hud_border())
-                        .on_mouse_down(MouseButton::Left, |_, _, cx| cx.stop_propagation())
-                        .child(tb("p-copy", Icon::Copy).on_click(cx.listener(|this, _, _, cx| app::copy_capture(&this.capture.clone(), cx))))
-                        .child(tb("p-edit", Icon::Edit).on_click(cx.listener(|this, _, window, cx| {
-                            let c = this.capture.clone();
-                            this.close(window, cx);
-                            cx.defer(move |cx| annotate::open(c, cx));
-                        })))
-                        .child(tb("p-opacity", Icon::Eye).on_click(cx.listener(|this, _, _, cx| {
-                            this.opacity = if this.opacity > 0.9 { 0.7 } else if this.opacity > 0.6 { 0.45 } else { 1.0 };
-                            cx.notify();
-                        })))
-                        .child(tb("p-lock", Icon::Lock).on_click(cx.listener(|this, _, _, cx| {
-                            this.set_locked(true);
-                            cx.notify();
-                        })))
-                        .child(tb("p-close", Icon::Close).on_click(cx.listener(|this, _, window, cx| this.close(window, cx)))),
+                        .justify_center()
+                        .child(
+                            div()
+                                .flex()
+                                .gap(px(2.))
+                                .p(px(4.))
+                                .rounded_full()
+                                .bg(color::hud())
+                                .border_1()
+                                .border_color(color::hud_border())
+                                .on_mouse_down(MouseButton::Left, |_, _, cx| cx.stop_propagation())
+                                .child(ui::icon_button("p-copy", Icon::Copy, false).on_click(cx.listener(|this, _, _, cx| app::copy_capture(&this.capture.clone(), cx))))
+                                .child(ui::icon_button("p-edit", Icon::Edit, false).on_click(cx.listener(|this, _, window, cx| {
+                                    let c = this.capture.clone();
+                                    this.close(window, cx);
+                                    cx.defer(move |cx| annotate::open(c, cx));
+                                })))
+                                .child(ui::icon_button("p-opacity", Icon::Eye, false).on_click(cx.listener(|this, _, _, cx| {
+                                    this.opacity = if this.opacity > 0.9 { 0.7 } else if this.opacity > 0.6 { 0.45 } else { 1.0 };
+                                    cx.notify();
+                                })))
+                                .child(ui::icon_button("p-lock", Icon::Lock, false).on_click(cx.listener(|this, _, _, cx| {
+                                    this.set_locked(true);
+                                    cx.notify();
+                                })))
+                                .child(ui::icon_button("p-close", Icon::Close, false).on_click(cx.listener(|this, _, window, cx| this.close(window, cx)))),
+                        ),
                 )
                 .child(
                     div()
                         .absolute()
                         .bottom(px(8.))
                         .left(px(8.))
-                        .px(px(7.))
-                        .py(px(2.))
-                        .rounded(px(6.))
+                        .px(px(8.))
+                        .py(px(3.))
+                        .rounded_full()
                         .bg(color::hud())
-                        .text_size(px(11.))
+                        .border_1()
+                        .border_color(color::hud_border())
+                        .text_size(font_size::CAPTION)
                         .text_color(color::text_dim())
                         .child(format!("{:.0}% · opacity {:.0}%", zoom * 100.0, self.opacity * 100.0)),
                 )

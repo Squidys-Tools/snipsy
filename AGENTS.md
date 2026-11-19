@@ -29,7 +29,8 @@ Windows only. There is no scrolling capture, screen recording or cloud upload; d
 
 ## Verifying
 
-- `cargo build` and `cargo test` must pass.
+- `cargo build` and `cargo test` must pass. Use the MSVC toolchain (`cargo +stable-x86_64-pc-windows-msvc ...`); the GNU toolchain fails to link (`-lktmw32`).
+- Follow `docs/internals/design.md` for any UI change: tokens and shared controls from `src/ui` only.
 - Visual and window behaviour is verified by running the debug build and capturing the windows, not by tests. See `docs/internals/testing.md`.
 - Debug builds have their own single-instance identity, so they run beside an installed release build.
 

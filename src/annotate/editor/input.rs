@@ -33,6 +33,7 @@ impl Editor {
         }
         self.tool = t;
         self.eyedropper = false;
+        self.menu = None;
         if t != Tool::Select {
             self.selected = None;
         }
@@ -290,6 +291,12 @@ impl Editor {
         let ks = &e.keystroke;
         let ctrl = ks.modifiers.control;
         let key = ks.key.as_str();
+
+        if self.menu.is_some() && key == "escape" {
+            self.menu = None;
+            cx.notify();
+            return;
+        }
 
         if let Some(id) = self.editing_text {
             let exists = self.doc.annotations.iter().any(|a| a.id == id && matches!(a.shape, Shape::Text { .. }));

@@ -16,6 +16,7 @@
 - [Windows](internals/windows.md): HUD windows, DPI, DWM, multi-monitor overlays.
 - [Annotation rendering](internals/annotation-rendering.md): the document model and the two renderers.
 - [Testing](internals/testing.md): what gets a test, how to verify visuals, driving a running instance.
+- [Design](internals/design.md): CleanShot-style dark design: tokens, shared controls, per-surface targets.
 
 ## Operations
 

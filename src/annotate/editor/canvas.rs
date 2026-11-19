@@ -161,7 +161,7 @@ impl Editor {
             .when(self.eyedropper, |d| {
                 d.child(
                     div().absolute().top(px(12.)).left_0().right_0().flex().justify_center().child(
-                        div().px(px(12.)).py(px(6.)).rounded(px(8.)).bg(color::hud()).text_size(px(12.)).text_color(color::text()).child("Click anywhere on the image to pick a color"),
+                        div().px(px(12.)).py(px(6.)).rounded(ui::radius::MD).bg(color::hud()).text_size(ui::font_size::SMALL).text_color(color::text()).child("Click anywhere on the image to pick a color"),
                     ),
                 )
             })
@@ -171,7 +171,9 @@ impl Editor {
 fn paint_crop_overlay(window: &mut Window, mrect: &dyn Fn(Rect) -> Bounds<Pixels>, base_w: f32, base_h: f32, r: Rect) {
     let full = mrect(Rect { x0: 0.0, y0: 0.0, x1: base_w, y1: base_h });
     let c = mrect(r);
-    let dim = rgba(0x000000A0);
+    let dim: Hsla = color::scrim().into();
+    let line: Hsla = color::on_accent().into();
+    let grid: Hsla = color::text_faint().into();
     let (x0, y0, x1, y1) = (c.origin.x, c.origin.y, c.origin.x + c.size.width, c.origin.y + c.size.height);
     let (fx0, fy0, fx1, fy1) = (full.origin.x, full.origin.y, full.origin.x + full.size.width, full.origin.y + full.size.height);
     for b in [
@@ -184,15 +186,15 @@ fn paint_crop_overlay(window: &mut Window, mrect: &dyn Fn(Rect) -> Bounds<Pixels
             window.paint_quad(fill(b, dim));
         }
     }
-    window.paint_quad(outline(c, rgb(0xFFFFFF), BorderStyle::Solid));
+    window.paint_quad(outline(c, line, BorderStyle::Solid));
     for i in 1..3 {
         let fx = x0 + (x1 - x0) * (i as f32 / 3.0);
         let fy = y0 + (y1 - y0) * (i as f32 / 3.0);
-        window.paint_quad(fill(Bounds::new(point(fx, y0), size(px(1.), y1 - y0)), rgba(0xFFFFFF55)));
-        window.paint_quad(fill(Bounds::new(point(x0, fy), size(x1 - x0, px(1.))), rgba(0xFFFFFF55)));
+        window.paint_quad(fill(Bounds::new(point(fx, y0), size(px(1.), y1 - y0)), grid));
+        window.paint_quad(fill(Bounds::new(point(x0, fy), size(x1 - x0, px(1.))), grid));
     }
     for (hx, hy) in [(x0, y0), (x1, y0), (x0, y1), (x1, y1)] {
-        window.paint_quad(fill(Bounds::new(point(hx - px(4.), hy - px(4.)), size(px(8.), px(8.))), rgb(0xFFFFFF)));
+        window.paint_quad(fill(Bounds::new(point(hx - px(4.), hy - px(4.)), size(px(8.), px(8.))), line));
     }
 }
 
@@ -208,6 +210,7 @@ fn overlay_labels(anns: &[Annotation], img_o: Point<Pixels>, origin: Point<Pixel
                 let r = a.counter_radius() * z;
                 let o = point(img_o.x + px(c.x * z - r), img_o.y + px(c.y * z - r)) - origin;
                 let fg = render::contrast_on(a.color);
+                let n_size = px(r * 1.15);
                 labels.push(
                     div()
                         .absolute()
@@ -217,12 +220,12 @@ fn overlay_labels(anns: &[Annotation], img_o: Point<Pixels>, origin: Point<Pixel
                         .rounded_full()
                         .bg(ui::hsla_of(a.color))
                         .border(px((r * 0.12).max(1.0)))
-                        .border_color(rgb(0xFFFFFF))
+                        .border_color(color::on_accent())
                         .shadow_md()
                         .flex()
                         .items_center()
                         .justify_center()
-                        .text_size(px(r * 1.15))
+                        .text_size(n_size)
                         .line_height(px(r * 2.0))
                         .font_weight(FontWeight::BOLD)
                         .text_color(ui::hsla_of(fg))
@@ -271,15 +274,17 @@ fn text_element(a: &Annotation, text: &str, style: TextStyle, o: Point<Pixels>, 
         d
     };
     let pad = size * 0.35;
+    let t_size = px(size);
     let mut el = div()
         .absolute()
         .left(o.x - px(if bg.is_some() { pad } else { 0.0 }))
         .top(o.y - px(if bg.is_some() { pad * 0.5 } else { 0.0 }))
         .font_family(ui::FONT)
         .font_weight(FontWeight::BOLD)
-        .text_size(px(size));
+        .text_size(t_size);
     if let Some(b) = bg {
-        el = el.px(px(pad)).py(px(pad * 0.5)).rounded(px(size * 0.3)).bg(ui::hsla_of(b)).shadow_md();
+        let corner = px(size * 0.3);
+        el = el.px(px(pad)).py(px(pad * 0.5)).rounded(corner).bg(ui::hsla_of(b)).shadow_md();
     }
     if style == TextStyle::Outline {
         let oc = render::contrast_on(fg);
@@ -293,7 +298,7 @@ fn text_element(a: &Annotation, text: &str, style: TextStyle, o: Point<Pixels>, 
         el = el.child(lines(fg));
     }
     if editing {
-        el = el.border_1().border_color(color::accent()).rounded(px(4.));
+        el = el.border_1().border_color(color::accent()).rounded(ui::radius::SM);
     }
     el
 }
@@ -391,7 +396,7 @@ fn paint_annotation(window: &mut Window, a: &Annotation, map: &dyn Fn(Pt) -> Poi
         Shape::Blur(r) | Shape::Pixelate(r) => {
             // committed effects are baked into the display image; show the frame while drawing
             let b = Bounds::from_corners(map(pt(r.x0, r.y0)), map(pt(r.x1, r.y1)));
-            window.paint_quad(quad(b, px(2.), transparent_black(), px(1.), rgba(0xFFFFFF40), BorderStyle::Dashed));
+            window.paint_quad(quad(b, px(2.), transparent_black(), px(1.), color::text_faint(), BorderStyle::Dashed));
         }
         Shape::Spotlight(_) | Shape::Text { .. } | Shape::Counter { .. } => {}
     }

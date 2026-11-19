@@ -1,6 +1,6 @@
 use crate::app::{self, state, state_mut, Capture};
 use crate::history::{CaptureKind, HistoryEntry};
-use crate::ui::{self, color, icon, Icon};
+use crate::ui::{self, color, font_size, icon, radius, Icon};
 use crate::{annotate, pin, platform, quick};
 use gpui::prelude::*;
 use gpui::*;
@@ -110,11 +110,11 @@ impl Render for HistoryView {
                 .flex()
                 .items_center()
                 .rounded_full()
-                .text_size(px(13.))
+                .text_size(font_size::BODY)
                 .font_weight(FontWeight::SEMIBOLD)
                 .cursor_pointer()
-                .when(active, |d| d.bg(color::accent()).text_color(rgb(0xFFFFFF)))
-                .when(!active, |d| d.bg(color::field()).text_color(color::text_dim()).hover(|s| s.bg(rgba(0xFFFFFF24))))
+                .when(active, |d| d.bg(color::accent()).text_color(color::on_accent()))
+                .when(!active, |d| d.bg(color::control()).text_color(color::text_dim()).hover(|s| s.bg(color::control_hover())))
                 .child(label)
         };
         let filters = [
@@ -137,21 +137,7 @@ impl Render for HistoryView {
             let id = e.id;
             let hovered = self.hovered == Some(id);
             let selected = self.selected == Some(id);
-            let action = |aid: (&'static str, u64), path: Icon| {
-                div()
-                    .id(aid)
-                    .size(px(30.))
-                    .rounded_full()
-                    .flex()
-                    .items_center()
-                    .justify_center()
-                    .bg(rgba(0x1E1E20D9))
-                    .border_1()
-                    .border_color(rgba(0xFFFFFF26))
-                    .cursor_pointer()
-                    .hover(|s| s.bg(rgba(0x3A3A3CF2)))
-                    .child(icon(path, px(14.), rgb(0xFFFFFF)))
-            };
+            let action = |aid: (&'static str, u64), path: Icon| ui::icon_button(aid, path, false);
             let e1 = e.clone();
             let e2 = e.clone();
             let e3 = e.clone();
@@ -169,10 +155,10 @@ impl Render for HistoryView {
                             .w(px(226.))
                             .h(px(150.))
                             .relative()
-                            .rounded(px(14.))
+                            .rounded(radius::LG)
                             .overflow_hidden()
-                            .border(px(if selected { 3. } else { 1. }))
-                            .border_color(if selected { color::accent().into() } else { color::control() })
+                            .border(px(2.))
+                            .border_color(if selected || hovered { color::accent().into() } else { color::border() })
                             .bg(color::group_bg())
                             .cursor_pointer()
                             .on_hover(cx.listener(move |this, h: &bool, _, cx| {
@@ -196,29 +182,39 @@ impl Render for HistoryView {
                                     div()
                                         .absolute()
                                         .size_full()
-                                        .bg(rgba(0x00000059))
+                                        .bg(color::scrim())
                                         .flex()
                                         .items_center()
                                         .justify_center()
-                                        .gap(px(8.))
-                                        .child(action(("ha", id), Icon::Edit).on_click(cx.listener(move |_, _, _, cx| {
-                                            cx.stop_propagation();
-                                            with_capture(&e2, cx, |c, cx| annotate::open(c, cx));
-                                        })))
-                                        .child(action(("hc", id), Icon::Copy).on_click(cx.listener(move |_, _, _, cx| {
-                                            cx.stop_propagation();
-                                            with_capture(&e3, cx, |c, cx| app::copy_capture(&c, cx));
-                                        })))
-                                        .child(action(("hp", id), Icon::Pin).on_click(cx.listener(move |_, _, _, cx| {
-                                            cx.stop_propagation();
-                                            with_capture(&e4, cx, |c, cx| pin::open(c, cx));
-                                        })))
-                                        .child(action(("hd", id), Icon::Trash).on_click(cx.listener(move |this, _, _, cx| {
-                                            cx.stop_propagation();
-                                            state_mut(cx).history.remove(id);
-                                            this.hovered = None;
-                                            cx.notify();
-                                        }))),
+                                        .child(
+                                            div()
+                                                .flex()
+                                                .items_center()
+                                                .gap(px(2.))
+                                                .p(px(4.))
+                                                .rounded_full()
+                                                .bg(color::hud())
+                                                .border_1()
+                                                .border_color(color::hud_border())
+                                                .child(action(("ha", id), Icon::Edit).on_click(cx.listener(move |_, _, _, cx| {
+                                                    cx.stop_propagation();
+                                                    with_capture(&e2, cx, |c, cx| annotate::open(c, cx));
+                                                })))
+                                                .child(action(("hc", id), Icon::Copy).on_click(cx.listener(move |_, _, _, cx| {
+                                                    cx.stop_propagation();
+                                                    with_capture(&e3, cx, |c, cx| app::copy_capture(&c, cx));
+                                                })))
+                                                .child(action(("hp", id), Icon::Pin).on_click(cx.listener(move |_, _, _, cx| {
+                                                    cx.stop_propagation();
+                                                    with_capture(&e4, cx, |c, cx| pin::open(c, cx));
+                                                })))
+                                                .child(action(("hd", id), Icon::Trash).on_click(cx.listener(move |this, _, _, cx| {
+                                                    cx.stop_propagation();
+                                                    state_mut(cx).history.remove(id);
+                                                    this.hovered = None;
+                                                    cx.notify();
+                                                }))),
+                                        ),
                                 )
                             }),
                     )
@@ -237,14 +233,14 @@ impl Render for HistoryView {
                                         .gap(px(6.))
                                         .px(px(12.))
                                         .h(px(28.))
-                                        .rounded(px(8.))
+                                        .rounded(radius::MD)
                                         .bg(color::accent())
-                                        .text_color(rgb(0xFFFFFF))
-                                        .text_size(px(13.))
+                                        .text_color(color::on_accent())
+                                        .text_size(font_size::BODY)
                                         .font_weight(FontWeight::SEMIBOLD)
                                         .cursor_pointer()
                                         .hover(|s| s.bg(color::accent_hover()))
-                                        .child(icon(Icon::Restore, px(14.), rgb(0xFFFFFF)))
+                                        .child(icon(Icon::Restore, px(14.), color::on_accent()))
                                         .child("Restore")
                                         .on_click(cx.listener(move |this, _, _, cx| this.restore(&e5, cx))),
                                 )
@@ -252,7 +248,7 @@ impl Render for HistoryView {
                             .when(!(selected || hovered), |d| {
                                 d.child(
                                     div()
-                                        .text_size(px(12.))
+                                        .text_size(font_size::CAPTION)
                                         .text_color(color::text_faint())
                                         .child(format!("{} · {} · {}×{}", e.kind.label(), e.created.format("%b %d, %H:%M"), e.width, e.height)),
                                 )
@@ -284,7 +280,7 @@ impl Render for HistoryView {
                             .flex()
                             .items_center()
                             .gap(px(8.))
-                            .child(div().text_size(px(12.)).text_color(color::text_faint()).child(format!("{total} captures · kept for {days} days")))
+                            .child(div().text_size(font_size::CAPTION).text_color(color::text_dim()).child(format!("{total} captures · kept for {days} days")))
                             .child(ui::button("open-folder", "Open Folder", false).on_click(|_, _, _| {
                                 platform::open_path(&crate::settings::data_dir().join("history"));
                             }))
@@ -308,8 +304,8 @@ impl Render for HistoryView {
                                 .items_center()
                                 .gap(px(10.))
                                 .child(icon(Icon::History, px(40.), color::text_faint()))
-                                .child(div().text_size(px(15.)).text_color(color::text_dim()).child("No captures yet"))
-                                .child(div().text_size(px(12.)).text_color(color::text_faint()).child("Screenshots you take will appear here.")),
+                                .child(div().text_size(font_size::BODY).text_color(color::text_dim()).child("No captures yet"))
+                                .child(div().text_size(font_size::CAPTION).text_color(color::text_dim()).child("Screenshots you take will appear here.")),
                         )
                     })
                     .when(!empty, |d| d.child(grid)),

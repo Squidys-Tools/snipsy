@@ -2,7 +2,7 @@ use super::geometry::DragKind;
 use super::{close_all, OverlayView, MAG_CELL, MAG_CELLS};
 use crate::app::Mode;
 use crate::capture::{self, WindowInfo};
-use crate::ui::{self, color};
+use crate::ui::{self, color, font_size, radius};
 use gpui::prelude::*;
 use gpui::*;
 use image::RgbaImage;
@@ -11,17 +11,30 @@ fn pill(text: String) -> Div {
     div()
         .px(px(7.))
         .py(px(2.))
-        .rounded(px(6.))
-        .bg(rgba(0x000000B3))
-        .text_color(rgb(0xFFFFFF))
-        .text_size(px(11.))
+        .rounded(radius::SM)
+        .bg(color::hud())
+        .border_1()
+        .border_color(color::hud_border())
+        .text_color(color::text())
+        .text_size(font_size::CAPTION)
         .font_family(ui::FONT)
         .whitespace_nowrap()
         .child(text)
 }
 
+// No text_shadow in gpui: a dark copy offset one pixel serves as the shadow.
+fn coord_text(text: String) -> Div {
+    div()
+        .relative()
+        .whitespace_nowrap()
+        .text_size(font_size::CAPTION)
+        .font_family(ui::FONT)
+        .child(div().absolute().left(px(1.)).top(px(1.)).text_color(color::scrim()).child(text.clone()))
+        .child(div().text_color(color::text()).child(text))
+}
+
 fn paint_selection(window: &mut Window, full: Bounds<Pixels>, s: Bounds<Pixels>, with_handles: bool) {
-    let dim = rgba(0x00000066);
+    let dim = color::scrim();
     let (x0, y0) = (s.origin.x, s.origin.y);
     let (x1, y1) = (x0 + s.size.width, y0 + s.size.height);
     let r = |a: Point<Pixels>, b: Point<Pixels>| Bounds::from_corners(a, b);
@@ -35,25 +48,27 @@ fn paint_selection(window: &mut Window, full: Bounds<Pixels>, s: Bounds<Pixels>,
             window.paint_quad(fill(b, dim));
         }
     }
-    window.paint_quad(outline(s.dilate(px(1.)), rgba(0x00000066), BorderStyle::Solid));
-    window.paint_quad(outline(s, rgba(0xFFFFFFE6), BorderStyle::Solid));
+    window.paint_quad(outline(s.dilate(px(1.)), color::scrim(), BorderStyle::Solid));
+    window.paint_quad(outline(s, color::text(), BorderStyle::Solid));
     if with_handles {
         let (mx, my) = ((x0 + x1) / 2.0, (y0 + y1) / 2.0);
         for (hx, hy) in [(x0, y0), (x1, y0), (x0, y1), (x1, y1), (mx, y0), (mx, y1), (x0, my), (x1, my)] {
             let hb = Bounds::new(point(hx - px(4.), hy - px(4.)), gpui::size(px(8.), px(8.)));
-            window.paint_quad(quad(hb, px(4.), rgb(0xFFFFFF), px(1.), rgba(0x00000080), BorderStyle::Solid));
+            window.paint_quad(quad(hb, px(4.), color::on_accent(), px(1.), color::scrim(), BorderStyle::Solid));
         }
     }
 }
 
 fn paint_window_highlight(window: &mut Window, w: Bounds<Pixels>) {
-    window.paint_quad(fill(w, rgba(0x0A84FF33)));
+    let mut tint = color::accent();
+    tint.a = 0.2;
+    window.paint_quad(fill(w, tint));
     window.paint_quad(quad(w, px(0.), transparent_black(), px(3.), color::accent(), BorderStyle::Solid));
 }
 
 fn paint_crosshair(window: &mut Window, full: Bounds<Pixels>, m: Point<Pixels>) {
-    let line = rgba(0x00000073);
-    let line2 = rgba(0xFFFFFF59);
+    let line = color::scrim();
+    let line2 = color::text_faint();
     window.paint_quad(fill(Bounds::new(point(px(0.), m.y), gpui::size(full.size.width, px(1.))), line));
     window.paint_quad(fill(Bounds::new(point(m.x, px(0.)), gpui::size(px(1.), full.size.height)), line));
     window.paint_quad(fill(Bounds::new(point(px(0.), m.y + px(1.)), gpui::size(full.size.width, px(1.))), line2));
@@ -79,12 +94,15 @@ fn window_title_label(w: Bounds<Pixels>, info: &WindowInfo) -> AnyElement {
                 .gap(px(4.))
                 .px(px(14.))
                 .py(px(8.))
-                .rounded(px(10.))
-                .bg(rgba(0x000000A6))
-                .text_color(rgb(0xFFFFFF))
+                .rounded(radius::LG)
+                .bg(color::hud())
+                .border_1()
+                .border_color(color::hud_border())
+                .shadow_lg()
+                .text_color(color::text())
                 .font_family(ui::FONT)
-                .child(div().text_size(px(13.)).font_weight(FontWeight::SEMIBOLD).child(title))
-                .child(div().text_size(px(11.)).text_color(color::text_dim()).child(format!("{} × {}", info.rect.w, info.rect.h))),
+                .child(div().text_size(font_size::BODY).font_weight(FontWeight::SEMIBOLD).child(title))
+                .child(div().text_size(font_size::CAPTION).text_color(color::text_dim()).child(format!("{} × {}", info.rect.w, info.rect.h))),
         )
         .into_any_element()
 }
@@ -100,21 +118,21 @@ fn magnifier_panel(mag: std::sync::Arc<RenderImage>, m: Point<Pixels>, size: Siz
         oy = m.y - side - px(30.);
     }
     let c = px((MAG_CELLS / 2) as f32 * MAG_CELL);
-    let band = rgba(0x00000059);
+    let band = color::scrim();
     div()
         .absolute()
         .left(ox)
         .top(oy)
         .size(side)
-        .rounded(px(12.))
+        .rounded(radius::LG)
         .shadow_lg()
-        .child(img(mag).absolute().size(side).rounded(px(12.)))
+        .child(img(mag).absolute().size(side).rounded(radius::LG))
         .child(div().absolute().left(c).top_0().w(px(MAG_CELL)).h(c).bg(band))
         .child(div().absolute().left(c).top(c + px(MAG_CELL)).w(px(MAG_CELL)).h(c).bg(band))
         .child(div().absolute().top(c).left_0().h(px(MAG_CELL)).w(c).bg(band))
         .child(div().absolute().top(c).left(c + px(MAG_CELL)).h(px(MAG_CELL)).w(c).bg(band))
-        .child(div().absolute().left(c).top(c).size(px(MAG_CELL)).border_1().border_color(rgb(0xFFFFFF)))
-        .child(div().absolute().size(side).rounded(px(12.)).border_2().border_color(rgba(0xFFFFFFCC)))
+        .child(div().absolute().left(c).top(c).size(px(MAG_CELL)).border_1().border_color(color::on_accent()))
+        .child(div().absolute().size(side).rounded(radius::LG).border_1().border_color(color::scrim()))
         .into_any_element()
 }
 
@@ -168,7 +186,7 @@ impl OverlayView {
                 if let Some(s) = selection {
                     paint_selection(window, full, s, all_in_one && !dragging_new);
                 } else if dim_all {
-                    window.paint_quad(fill(full, rgba(0x00000033)));
+                    window.paint_quad(fill(full, color::scrim()));
                 }
                 if let Some(w) = window_rect {
                     paint_window_highlight(window, w);
@@ -209,7 +227,7 @@ impl OverlayView {
                     .top(m.y + px(6.))
                     .flex()
                     .flex_col()
-                    .child(pill(format!("{px_}\n{py_}").replace('\n', " · ")))
+                    .child(coord_text(format!("{px_} · {py_}")))
                     .into_any_element(),
             );
         }
@@ -236,11 +254,11 @@ impl OverlayView {
             div()
                 .px(px(14.))
                 .py(px(7.))
-                .rounded(px(10.))
+                .rounded(radius::LG)
                 .bg(color::hud())
                 .border_1()
                 .border_color(color::hud_border())
-                .text_size(px(12.))
+                .text_size(font_size::SMALL)
                 .font_family(ui::FONT)
                 .text_color(color::text_dim())
                 .child(self.mode_hint()),
@@ -294,6 +312,29 @@ impl Render for OverlayView {
             // keyed on how the overlay was opened, so the HUD survives the Window / OCR sub-modes
             .when(self.all_in_one && self.drag.is_none() && (cursor_here || selection.is_some()), |d| {
                 d.child(self.hud(cx))
+            })
+            .when(self.aspect_menu, |d| {
+                d.child(
+                    div()
+                        .id("menu-dismiss")
+                        .absolute()
+                        .top_0()
+                        .left_0()
+                        .right_0()
+                        .bottom_0()
+                        .occlude()
+                        .on_mouse_down(MouseButton::Left, cx.listener(|this, _, _, cx| {
+                            this.aspect_menu = false;
+                            cx.stop_propagation();
+                            cx.notify();
+                        }))
+                        .on_mouse_up(MouseButton::Left, |_, _, cx| cx.stop_propagation())
+                        .on_mouse_down(MouseButton::Right, cx.listener(|this, _, _, cx| {
+                            this.aspect_menu = false;
+                            cx.stop_propagation();
+                            cx.notify();
+                        })),
+                )
             })
     }
 }

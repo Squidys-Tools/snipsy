@@ -29,9 +29,9 @@ Blur and pixelate destroy the detail underneath, so they are safe for hiding sec
 
 - Drag to draw. Shapes smaller than a few pixels are discarded.
 - `Shift` while dragging: arrows and lines snap to 45 degrees, boxes become squares, the highlighter stays horizontal.
-- Pick a colour from the palette, or use **Pick color** and click the image. Picked colours are remembered (last six).
-- `1` to `5` set the stroke width. Text size and counter size follow it.
-- Text styles: Outline, Plain, Pill, Card. Click with the Text tool to type. `Enter` finishes, `Shift+Enter` adds a line.
+- The colour menu (swatch, next to the tools) holds the palette, your recent picks and the eyedropper. Picked colours are remembered (last six).
+- The stroke menu lists the five widths. `1` to `5` set the width too; text size and counter size follow it.
+- Text styles: Outline, Plain, Pill, Card — a menu shown with the Text tool. Click with the Text tool to type. `Enter` finishes, `Shift+Enter` adds a line.
 
 ## Selecting
 
@@ -43,18 +43,17 @@ With Select, click an annotation to select it, drag to move it, and change its c
 
 ## Crop, resize, rotate, flip
 
-- **Crop**: drag a region, choose Free, 1:1, 4:3, 16:9 or 9:16, and apply with `Enter` or **Apply Crop**. `Esc` cancels. The edges snap to the image border.
-- **Resize** (bottom bar): 25%, 50%, 75%, 200%, or shrink so the longer side is at most 2560, 1920 or 1280 px. Annotations scale with the image.
-- Rotate left, rotate right, Flip H and Flip V are in the bottom bar. Text and counters stay upright.
+- **Crop** (crop button, top left): drag a region, choose Free, 1:1, 4:3, 16:9 or 9:16 in the bottom bar, and apply with `Enter` or **Apply Crop**. `Esc` cancels. The edges snap to the image border.
+- **Resize** (resize button, top left; controls in the bottom bar): 25%, 50%, 75%, 200%, or shrink so the longer side is at most 2560, 1920 or 1280 px. Annotations scale with the image.
+- Rotate left, rotate right, Flip H, Flip V and Pin are the icon buttons at the bottom bar's right end. Text and counters stay upright.
 
 ## Background
 
-The background button in the title bar opens the Background panel and turns the background on.
+The background button (top left) opens the Background panel on the left and turns the background on.
 
 - 20 gradient presets.
-- Padding: None, S, M, L, XL.
-- Corner radius: 0, 8, 16, 28.
-- Aspect ratio: Auto, 1:1, 16:9, 4:3, 9:16.
+- Padding and corner radius are sliders: padding up to 24% of the short side, radius up to 28 px.
+- Aspect ratio menu: Auto, 1:1, 16:9, 4:3, 9:16.
 - Shadow on or off.
 - Auto Balance trims uneven solid-colour borders so the content sits centred.
 
@@ -67,6 +66,6 @@ The background button in the title bar opens the Background panel and turns the 
 | Save As | `Ctrl+Shift+S` |
 | Pin to screen | `Ctrl+P` |
 
-**Drag me** in the title bar drags the edited image into any app as a PNG.
+**Drag me** in the bottom bar drags the edited image into any app as a PNG.
 
 Save writes to the export folder and adds an "Edited" entry to [history](history.md). The file is named `<prefix> YYYY-MM-DD at HH.MM.SS.png`; if it exists, ` (2)`, ` (3)`... is appended.

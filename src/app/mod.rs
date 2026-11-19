@@ -7,7 +7,7 @@ use crate::history::view as history_view;
 use crate::history::{CaptureKind, History};
 use crate::settings::view as settings_view;
 use crate::settings::{HotkeyAction, Settings};
-use crate::{overlay, pin, quick, toast};
+use crate::{overlay, pin, quick, toast, ui};
 use global_hotkey::hotkey::HotKey;
 use global_hotkey::GlobalHotKeyManager;
 use gpui::*;
@@ -96,6 +96,7 @@ pub fn send(cx: &App, cmd: Command) {
 }
 
 pub fn init(cx: &mut App) {
+    ui::register_fonts(cx);
     let settings = Settings::load();
     let history = History::load(settings.history_days);
     let (tx, rx) = flume::unbounded::<Command>();

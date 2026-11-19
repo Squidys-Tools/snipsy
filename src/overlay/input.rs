@@ -156,7 +156,9 @@ impl OverlayView {
         }
         match k {
             "escape" => {
-                if self.all_in_one && self.mode != Mode::AllInOne && self.drag.is_none() {
+                if self.aspect_menu {
+                    self.aspect_menu = false;
+                } else if self.all_in_one && self.mode != Mode::AllInOne && self.drag.is_none() {
                     self.set_mode(Mode::AllInOne);
                     self.sync_peers(cx);
                 } else if self.mode == Mode::AllInOne && self.selection.is_some() && self.drag.is_none() {

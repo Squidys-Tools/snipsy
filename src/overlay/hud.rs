@@ -1,27 +1,27 @@
 use super::geometry::{Aspect, Dim};
-use super::{close_all, with_selection_holder, OverlayView};
+use super::{close_all, OverlayView};
 use crate::app::{self, Command, Mode};
 use crate::history::CaptureKind;
-use crate::ui::{self, color, icon, Icon};
+use crate::ui::{self, color, font_size, icon, radius, Icon};
 use gpui::prelude::*;
 use gpui::*;
 
 fn item(id: &'static str, icon_path: Icon, label: &'static str, active: bool) -> Stateful<Div> {
     div()
         .id(id)
-        .w(px(68.))
-        .h(px(54.))
+        .w(px(76.))
+        .h(px(60.))
         .flex()
         .flex_col()
         .items_center()
         .justify_center()
         .gap(px(4.))
-        .rounded(px(9.))
+        .rounded(radius::LG)
         .cursor_pointer()
         .when(active, |d| d.bg(color::selected()))
         .when(!active, |d| d.hover(|s| s.bg(color::hover())).active(|s| s.bg(color::selected())))
-        .child(icon(icon_path, px(20.), color::text()))
-        .child(div().text_size(px(12.)).text_color(color::text_dim()).child(label))
+        .child(icon(icon_path, px(22.), color::text()))
+        .child(div().text_size(font_size::SMALL).font_weight(FontWeight::MEDIUM).text_color(color::text_dim()).child(label))
 }
 
 // Panels (not the full-width row) swallow presses so they never start a
@@ -30,9 +30,9 @@ fn panel() -> Div {
     div()
         .flex()
         .items_center()
-        .p(px(6.))
+        .p(px(8.))
         .gap(px(2.))
-        .rounded(px(14.))
+        .rounded(radius::XL)
         .bg(color::hud())
         .border_1()
         .border_color(color::hud_border())
@@ -50,13 +50,19 @@ impl OverlayView {
         let bar = div().flex().gap(px(12.)).child(self.hud_modes(cx)).child(self.hud_options(cx));
         div()
             .absolute()
-            .bottom(px(56.))
+            .bottom(self.hud_bottom())
             .left_0()
             .right_0()
             .flex()
             .justify_center()
             .font_family(ui::FONT)
             .child(ui::enter("hud-in", bar, 0., 14.))
+    }
+
+    fn hud_bottom(&self) -> Pixels {
+        let m = &self.monitor;
+        let taskbar = m.rect.h - (m.work.y + m.work.h - m.rect.y);
+        px(48. + taskbar as f32 / self.scale)
     }
 
     fn hud_modes(&self, cx: &mut Context<Self>) -> Div {
@@ -96,40 +102,47 @@ impl OverlayView {
 
     fn hud_options(&self, cx: &mut Context<Self>) -> Div {
         panel()
-            .px(px(14.))
             .gap(px(8.))
-            .children(Aspect::ALL.map(|a| self.aspect_btn(a, cx)))
-            .child(sep())
             .children(self.size_fields(cx))
             .child(sep())
-            .child(self.capture_btn(cx))
-            .child(ui::button("hud-cancel", "Cancel", false).on_click(cx.listener(|_, _, _, cx| close_all(cx, |_| {}))))
+            .child(self.aspect_dropdown(cx))
     }
 
-    fn aspect_btn(&self, a: Aspect, cx: &mut Context<Self>) -> Stateful<Div> {
-        let active = self.aspect == a;
+    fn aspect_dropdown(&self, cx: &mut Context<Self>) -> Div {
+        let open = self.aspect_menu;
+        let face = icon(Icon::Crop, px(18.), color::text()).into_any_element();
         div()
-            .id(("hud-aspect", a as usize))
-            .h(px(28.))
-            .px(px(8.))
-            .flex()
-            .items_center()
-            .justify_center()
-            .rounded(px(7.))
-            .text_size(px(12.))
-            .text_color(if active { color::text() } else { color::text_dim() })
-            .cursor_pointer()
-            .when(active, |d| d.bg(color::selected()))
-            .when(!active, |d| d.hover(|s| s.bg(color::hover())))
-            .child(a.label())
-            .on_click(cx.listener(move |this, _, window, cx| this.set_aspect(a, window.bounds().size, cx)))
+            .relative()
+            .child(
+                ui::dropdown("hud-aspect", face, open)
+                    .h(px(36.))
+                    .on_click(cx.listener(|this, _, _, cx| {
+                        this.aspect_menu = !this.aspect_menu;
+                        cx.notify();
+                    })),
+            )
+            .when(open, |d| {
+                d.child(deferred(
+                    anchored()
+                        .anchor(Corner::BottomLeft)
+                        .offset(point(px(0.), px(-6.)))
+                        .child(ui::menu("hud-aspect-list").children(Aspect::ALL.map(|a| {
+                            ui::menu_row(("hud-ratio", a as usize), a.label(), self.aspect == a).on_click(
+                                cx.listener(move |this, _, window, cx| {
+                                    this.aspect_menu = false;
+                                    this.set_aspect(a, window.bounds().size, cx);
+                                }),
+                            )
+                        }))),
+                ))
+            })
     }
 
     fn size_fields(&self, cx: &mut Context<Self>) -> Vec<AnyElement> {
         let sel = self.selection.map(|s| self.to_image_rect(s));
         vec![
             self.size_box("hud-w", Dim::W, sel.map(|r| r.w.to_string()).unwrap_or("—".into()), cx).into_any_element(),
-            div().text_size(px(12.)).text_color(color::text_faint()).child("×").into_any_element(),
+            div().text_size(font_size::SMALL).text_color(color::text_faint()).child("×").into_any_element(),
             self.size_box("hud-h", Dim::H, sel.map(|r| r.h.to_string()).unwrap_or("—".into()), cx).into_any_element(),
         ]
     }
@@ -142,18 +155,14 @@ impl OverlayView {
             Some(b) => (format!("{b}|"), false),
             None => (v, false),
         };
-        div()
-            .id(id)
-            .w(px(58.))
-            .h(px(28.))
+        ui::field(id, active)
+            .w(px(72.))
+            .h(px(36.))
             .flex()
             .items_center()
             .justify_center()
-            .rounded(px(7.))
-            .bg(color::field())
-            .border_1()
-            .border_color(if active { color::accent().into() } else { color::field() })
-            .text_size(px(14.))
+            .text_size(font_size::DISPLAY)
+            .font_weight(FontWeight::SEMIBOLD)
             .text_color(if faint { color::text_faint() } else { color::text() })
             .cursor(CursorStyle::IBeam)
             .child(text)
@@ -161,18 +170,6 @@ impl OverlayView {
                 this.editing = Some((dim, String::new()));
                 window.focus(&this.focus);
                 cx.notify();
-            }))
-    }
-
-    fn capture_btn(&self, cx: &mut Context<Self>) -> impl IntoElement {
-        ui::button("hud-capture", "Capture", true)
-            .when(self.selection.is_none(), |d| d.opacity(0.4))
-            .on_click(cx.listener(|this, _, _, cx| {
-                if this.selection.is_some() {
-                    this.capture_selection(CaptureKind::Area, cx);
-                } else {
-                    with_selection_holder(cx, |v, _, cx| v.capture_selection(CaptureKind::Area, cx), |_| {});
-                }
             }))
     }
 }

@@ -3,12 +3,16 @@ mod timer;
 use crate::app;
 use crate::capture::{self, PRect};
 use crate::platform;
-use crate::ui::{self, color, icon, Icon};
+use crate::ui::{self, color, font_size, icon, radius, Icon};
 use gpui::prelude::*;
 use gpui::*;
 use std::path::PathBuf;
 
 pub use timer::{cancel_timer, start_timer, timer_running};
+
+// No display token goes this large; the countdown digit stands alone.
+const COUNTDOWN_FONT: Pixels = px(56.);
+const COUNTDOWN_RADIUS: Pixels = px(28.);
 
 #[derive(Default)]
 struct Toasts {
@@ -154,7 +158,7 @@ impl Render for ToastView {
                     "in",
                     div()
                         .size(px(132.))
-                        .rounded(px(28.))
+                        .rounded(COUNTDOWN_RADIUS)
                         .bg(color::hud())
                         .border_1()
                         .border_color(color::hud_border())
@@ -163,8 +167,8 @@ impl Render for ToastView {
                         .items_center()
                         .justify_center()
                         .gap(px(2.))
-                        .child(div().text_size(px(56.)).font_weight(FontWeight::BOLD).text_color(color::text()).child(n.to_string()))
-                        .child(div().text_size(px(12.)).text_color(color::text_dim()).child("Self-Timer")),
+                        .child(div().text_size(COUNTDOWN_FONT).font_weight(FontWeight::BOLD).text_color(color::text()).child(n.to_string()))
+                        .child(div().text_size(font_size::SMALL).text_color(color::text_dim()).child("Self-Timer")),
                     0.,
                     0.,
                 ))
@@ -183,7 +187,7 @@ impl Render for ToastView {
                     .items_center()
                     .gap(px(12.))
                     .px(px(14.))
-                    .rounded(px(14.))
+                    .rounded(radius::LG)
                     .bg(color::hud())
                     .border_1()
                     .border_color(color::hud_border())
@@ -205,8 +209,8 @@ impl Render for ToastView {
                             .min_w_0()
                             .flex()
                             .flex_col()
-                            .child(div().text_size(px(13.)).font_weight(FontWeight::SEMIBOLD).text_color(color::text()).child(self.title.clone()))
-                            .child(div().text_size(px(12.)).text_color(color::text_dim()).truncate().child(self.body.clone())),
+                            .child(div().text_size(font_size::BODY).font_weight(FontWeight::SEMIBOLD).text_color(color::text()).child(self.title.clone()))
+                            .child(div().text_size(font_size::CAPTION).text_color(color::text_dim()).truncate().child(self.body.clone())),
                     )
                     .when_some(path, |d, path| {
                         d.child(ui::button("reveal", "Show", false).on_click(cx.listener(move |_, _, window, cx| {
