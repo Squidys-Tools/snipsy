@@ -40,9 +40,8 @@ From All-In-One, the Timer button counts down and then captures your current sel
 Press `Ctrl+Shift+1`. The overlay shows a HUD at the bottom with:
 
 - **Area**, **Fullscreen**, **Window**, **Timer** and **OCR** buttons. OCR is described in [Text recognition](text-recognition.md).
-- **Aspect lock**: Free, 1:1, 4:3, 16:9. The selection keeps that ratio while you draw or resize it.
 - **Size boxes**: width and height in real screen pixels.
-- **Capture** and **Cancel** buttons.
+- **Aspect** menu: Free, 1:1, 4:3, 16:9. The selection keeps that ratio while you draw or resize it.
 
 All-In-One opens with your previous area selected.
 
@@ -50,8 +49,8 @@ Working with the selection:
 
 - Drag to draw a new one. Drag inside to move it. Drag a handle to resize it.
 - Arrow keys nudge by 1 px; `Shift` nudges by 10.
-- `Enter`, double-click, or **Capture** takes the shot.
-- `Esc` clears the selection; `Esc` again cancels. In window or OCR mode, `Esc` returns to the main view.
+- `Enter` or double-click takes the shot. Clicking the highlighted mode button captures the current selection too.
+- `Esc` clears the selection; `Esc` again cancels. Right-click cancels. In window or OCR mode, `Esc` returns to the main view.
 
 ### Exact size
 

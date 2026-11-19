@@ -93,6 +93,7 @@ fn open_overlays(mode: Mode, cx: &mut App) {
                     mode,
                     all_in_one: mode == Mode::AllInOne,
                     aspect: Aspect::Free,
+                    aspect_menu: false,
                     editing: None,
                     monitor: mon,
                     render: ui::to_render_image(&img),
@@ -172,6 +173,7 @@ pub struct OverlayView {
     /// Opened as All-In-One: Window / OCR are sub-modes and the HUD stays.
     all_in_one: bool,
     aspect: Aspect,
+    aspect_menu: bool,
     editing: Option<(Dim, String)>,
     monitor: MonitorInfo,
     image: Arc<RgbaImage>,

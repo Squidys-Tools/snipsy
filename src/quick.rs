@@ -1,7 +1,7 @@
 use crate::app::{self, state, state_mut, Capture};
 use crate::capture::{self, PRect};
 use crate::settings::OverlayCorner;
-use crate::ui::{self, color, icon, Icon};
+use crate::ui::{self, color, font_size, icon, radius, Icon};
 use crate::{annotate, pin, platform, toast};
 use gpui::prelude::*;
 use gpui::*;
@@ -247,11 +247,11 @@ fn corner_button(id: (&'static str, u64), path: Icon) -> Stateful<Div> {
         .flex()
         .items_center()
         .justify_center()
-        .bg(rgba(0x1E1E20D0))
+        .bg(color::hud())
         .border_1()
-        .border_color(rgba(0xFFFFFF26))
+        .border_color(color::hud_border())
         .cursor_pointer()
-        .hover(|s| s.bg(rgba(0x3A3A3CF0)))
+        .hover(|s| s.bg(color::control_hover()))
         .active(|s| s.opacity(0.8))
         .child(icon(path, px(13.), color::on_accent()))
 }
@@ -275,10 +275,10 @@ impl Render for QuickAccess {
                 .h(px(h))
                 .flex_none()
                 .relative()
-                .rounded(px(12.))
+                .rounded(radius::LG)
                 .overflow_hidden()
                 .border_1()
-                .border_color(rgba(0xFFFFFF33))
+                .border_color(color::border())
                 .bg(color::window_bg())
                 .shadow_lg()
                 .cursor_pointer()
@@ -318,7 +318,7 @@ impl Render for QuickAccess {
                         div()
                             .absolute()
                             .size_full()
-                            .bg(rgba(0x0000004D))
+                            .bg(color::scrim())
                             .flex()
                             .flex_col()
                             .items_center()
@@ -396,8 +396,8 @@ impl Render for QuickAccess {
                                     .right(px(40.))
                                     .flex()
                                     .justify_center()
-                                    .text_size(px(10.))
-                                    .text_color(rgba(0xFFFFFFB3))
+                                    .text_size(font_size::CAPTION)
+                                    .text_color(color::text_dim())
                                     .child(format!("{} × {}", c.image.width(), c.image.height())),
                             ),
                     ))

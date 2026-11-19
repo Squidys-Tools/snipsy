@@ -22,8 +22,6 @@ use std::rc::Rc;
 use std::sync::Arc;
 
 const STROKES: [f32; 5] = [2.0, 4.0, 6.0, 9.0, 13.0];
-const PADDINGS: [(&str, f32); 5] = [("None", 0.0), ("S", 0.05), ("M", 0.10), ("L", 0.16), ("XL", 0.24)];
-const RADII: [(&str, f32); 4] = [("0", 0.0), ("8", 8.0), ("16", 16.0), ("28", 28.0)];
 const RESIZE_PRESETS: [(&str, f32); 4] = [("25%", 0.25), ("50%", 0.5), ("75%", 0.75), ("200%", 2.0)];
 const RESIZE_FIT: [u32; 3] = [2560, 1920, 1280];
 
@@ -72,6 +70,14 @@ enum Drag {
     Crop { start: Pt },
 }
 
+#[derive(Clone, Copy, PartialEq)]
+pub(super) enum Menu {
+    Color,
+    Stroke,
+    TextStyle,
+    Aspect,
+}
+
 pub struct Editor {
     capture: Capture,
     doc: Doc,
@@ -93,6 +99,7 @@ pub struct Editor {
     crop_aspect: Aspect,
     show_resize: bool,
     show_bg: bool,
+    menu: Option<Menu>,
     next_id: u64,
     /// Stable capture id for drag-out exports, so repeated drags overwrite one
     /// temp file instead of leaving a new one each time.
@@ -140,6 +147,7 @@ impl Editor {
             crop_aspect: Aspect::Auto,
             show_resize: false,
             show_bg: false,
+            menu: None,
             next_id: 1,
             drag_id: app::next_capture_id(),
             tentative: None,
@@ -206,17 +214,11 @@ impl Editor {
 
 impl Render for Editor {
     fn render(&mut self, window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
-        let title = format!(
-            "{}{}",
-            self.capture.file_name(&state(cx).settings.file_prefix).trim_end_matches(".png"),
-            if self.dirty { " — Edited" } else { "" }
-        );
         if self.drag.is_none() {
             // keep baked effects / trimmed copy in sync (skipped mid-drag: re-baking blur per move is slow)
             self.refresh_display(window);
         }
-        let toolbar = self.toolbar(cx).into_any_element();
-        let actions = self.actions(cx).into_any_element();
+        let (left, center, right) = self.top_bar(cx);
         div()
             .size_full()
             .flex()
@@ -226,15 +228,34 @@ impl Render for Editor {
             .text_color(color::text())
             .track_focus(&self.focus)
             .on_key_down(cx.listener(Self::on_key))
-            .child(ui::title_bar(title, Some(toolbar), Some(actions)))
+            .child(ui::tool_bar(left, center, right))
             .child(
                 div()
                     .flex_1()
                     .min_h_0()
                     .flex()
-                    .child(self.canvas_view(window, cx))
-                    .when(self.show_bg, |d| d.child(self.bg_panel(cx))),
+                    .when(self.show_bg, |d| d.child(self.bg_panel(cx)))
+                    .child(self.canvas_view(window, cx)),
             )
             .child(self.bottom_bar(cx))
+            .when(self.menu.is_some(), |d| {
+                d.child(
+                    div()
+                        .id("menu-dismiss")
+                        .absolute()
+                        .inset_0()
+                        .occlude()
+                        .on_mouse_down(MouseButton::Left, cx.listener(|this, _, _, cx| {
+                            this.menu = None;
+                            cx.stop_propagation();
+                            cx.notify();
+                        }))
+                        .on_mouse_down(MouseButton::Right, cx.listener(|this, _, _, cx| {
+                            this.menu = None;
+                            cx.stop_propagation();
+                            cx.notify();
+                        })),
+                )
+            })
     }
 }

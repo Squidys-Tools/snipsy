@@ -1,28 +1,28 @@
-use super::{save, SettingsView};
+use super::{logo, save, SettingsView};
 use crate::app::{self, state, state_mut};
 use crate::platform;
 use crate::settings::autostart::{launch_at_login, set_launch_at_login};
 use crate::settings::{default_hotkeys, pretty_accel, AfterCapture, HotkeyAction, OverlayCorner};
-use crate::ui::{self, color, icon, Icon};
+use crate::ui::{self, color, font_size, icon, radius, Icon};
 use gpui::prelude::*;
 use gpui::*;
 
 fn group() -> Div {
-    div().flex().flex_col().rounded(px(10.)).bg(color::group_bg()).border_1().border_color(color::separator())
+    div().flex().flex_col().rounded(radius::LG).bg(color::group_bg()).border_1().border_color(color::border())
 }
 
 fn heading(t: &'static str) -> Div {
-    div().mt(px(18.)).mb(px(8.)).text_size(px(13.)).font_weight(FontWeight::SEMIBOLD).text_color(color::text()).child(t)
+    div().mt(px(18.)).mb(px(8.)).text_size(font_size::BODY).font_weight(FontWeight::SEMIBOLD).text_color(color::text()).child(t)
 }
 
 fn title(t: &'static str) -> Div {
-    div().text_size(px(20.)).font_weight(FontWeight::BOLD).text_color(color::text()).child(t)
+    div().text_size(font_size::TITLE).font_weight(FontWeight::SEMIBOLD).text_color(color::text()).child(t)
 }
 
 fn row(label: SharedString, sub: Option<SharedString>, control: AnyElement, last: bool) -> Div {
         div()
-            .min_h(px(44.))
-            .px(px(14.))
+            .min_h(px(40.))
+            .px(px(12.))
             .py(px(8.))
             .flex()
             .flex_wrap()
@@ -35,8 +35,8 @@ fn row(label: SharedString, sub: Option<SharedString>, control: AnyElement, last
                     .min_w(px(140.))
                     .flex()
                     .flex_col()
-                    .child(div().text_size(px(13.)).text_color(color::text()).child(label))
-                    .children(sub.map(|s| div().text_size(px(11.)).text_color(color::text_faint()).child(s))),
+                    .child(div().text_size(font_size::BODY).text_color(color::text()).child(label))
+                    .children(sub.map(|s| div().text_size(font_size::CAPTION).text_color(color::text_dim()).child(s))),
             )
             .child(div().flex_none().ml_auto().max_w_full().child(control))
 }
@@ -111,7 +111,7 @@ impl SettingsView {
                         .items_center()
                         .gap(px(8.))
                         .child(icon(Icon::Folder, px(14.), color::accent()))
-                        .child(div().text_size(px(13.)).text_color(color::text_dim()).child(folder_name))
+                        .child(div().text_size(font_size::BODY).text_color(color::text_dim()).child(folder_name))
                         .child(ui::button("choose", "Choose…", false).on_click(cx.listener(|_, _, _, cx| {
                             let rx = cx.prompt_for_paths(PathPromptOptions { files: false, directories: true, multiple: false, prompt: Some("Choose export folder".into()) });
                             cx.spawn(async move |this, cx| {
@@ -153,19 +153,14 @@ impl SettingsView {
                 .items_center()
                 .gap(px(8.))
                 .child(
-                    div()
-                        .id(("rec", i))
+                    ui::field(("rec", i), recording)
                         .min_w(px(150.))
                         .h(px(28.))
                         .px(px(10.))
                         .flex()
                         .items_center()
                         .justify_center()
-                        .rounded(px(7.))
-                        .border_1()
-                        .border_color(if recording { color::accent().into() } else { color::control() })
-                        .bg(rgba(0x00000033))
-                        .text_size(px(12.))
+                        .text_size(font_size::SMALL)
                         .text_color(if recording { color::accent().into() } else if enabled { color::text() } else { color::text_faint() })
                         .cursor_pointer()
                         .child(label)
@@ -206,10 +201,10 @@ impl SettingsView {
             .flex()
             .flex_col()
             .child(title("Shortcuts"))
-            .child(div().mt(px(6.)).text_size(px(12.)).text_color(color::text_faint()).child("Global shortcuts work from any app. Click a shortcut, then press the new key combination (Esc cancels)."))
+            .child(div().mt(px(6.)).text_size(font_size::CAPTION).text_color(color::text_faint()).child("Global shortcuts work from any app. Click a shortcut, then press the new key combination (Esc cancels)."))
             .child(heading("Capture"))
             .child(g)
-            .children(errors.into_iter().map(|e| div().mt(px(6.)).text_size(px(11.)).text_color(color::danger()).child(format!("Couldn't register {e} (already used by another app?)"))))
+            .children(errors.into_iter().map(|e| div().mt(px(6.)).text_size(font_size::CAPTION).text_color(color::danger()).child(format!("Couldn't register {e} (already used by another app?)"))))
             .child(
                 div().mt(px(12.)).flex().child(ui::button("reset-keys", "Restore Defaults", false).on_click(cx.listener(|this, _, _, cx| {
                     state_mut(cx).settings.hotkeys = default_hotkeys();
@@ -267,7 +262,7 @@ impl SettingsView {
                     .child(toggle_row!(st, cx, "autoclose", "Auto close", Some("Dismiss captures you haven't interacted with".into()), overlay_auto_close, false))
                     .child(row("Close after".into(), None, close.into_any_element(), true)),
             )
-            .child(div().mt(px(10.)).text_size(px(11.)).text_color(color::text_faint()).child("Tip: right-click a capture to dismiss it, drag it into any app to drop the file, and use “Restore Recently Closed” from the tray to bring it back."))
+            .child(div().mt(px(10.)).text_size(font_size::CAPTION).text_color(color::text_faint()).child("Tip: right-click a capture to dismiss it, drag it into any app to drop the file, and use “Restore Recently Closed” from the tray to bring it back."))
             .into_any_element()
     }
 
@@ -333,20 +328,10 @@ impl SettingsView {
         .items_center()
         .gap(px(10.))
         .pt(px(60.))
-        .child(
-            div()
-                .size(px(72.))
-                .rounded(px(18.))
-                .bg(linear_gradient(160., linear_color_stop(rgb(0x3D9BFF), 0.), linear_color_stop(rgb(0x0A64E0), 1.)))
-                .flex()
-                .items_center()
-                .justify_center()
-                .shadow_lg()
-                .child(icon(Icon::Area, px(38.), rgb(0xFFFFFF))),
-        )
-        .child(div().text_size(px(22.)).font_weight(FontWeight::BOLD).child("Snipsy"))
-        .child(div().text_size(px(12.)).text_color(color::text_faint()).child(format!("Version {} · Rust + GPUI for Windows", env!("CARGO_PKG_VERSION"))))
-        .child(div().mt(px(8.)).text_size(px(12.)).text_color(color::text_dim()).child("Captures, annotations and text recognition all run locally on this PC."))
+        .child(logo(px(72.), px(38.)).shadow_lg())
+        .child(div().text_size(font_size::DISPLAY).font_weight(FontWeight::SEMIBOLD).child("Snipsy"))
+        .child(div().text_size(font_size::CAPTION).text_color(color::text_faint()).child(format!("Version {} · Rust + GPUI for Windows", env!("CARGO_PKG_VERSION"))))
+        .child(div().mt(px(8.)).text_size(font_size::SMALL).text_color(color::text_dim()).child("Captures, annotations and text recognition all run locally on this PC."))
         .child(
             div().mt(px(12.)).flex().gap(px(8.)).child(ui::button("data", "Open Data Folder", false).on_click(|_, _, _| {
                 platform::open_path(&crate::settings::data_dir());

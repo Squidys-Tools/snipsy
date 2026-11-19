@@ -4,9 +4,23 @@ use std::borrow::Cow;
 
 pub struct Assets;
 
+pub fn register_fonts(cx: &mut App) {
+    let fonts: Vec<Cow<'static, [u8]>> = [
+        include_bytes!("../../assets/fonts/Inter-Regular.ttf").as_slice(),
+        include_bytes!("../../assets/fonts/Inter-Medium.ttf").as_slice(),
+        include_bytes!("../../assets/fonts/Inter-SemiBold.ttf").as_slice(),
+        include_bytes!("../../assets/fonts/Inter-Bold.ttf").as_slice(),
+    ]
+    .into_iter()
+    .map(Cow::Borrowed)
+    .collect();
+    if let Err(e) = cx.text_system().add_fonts(fonts) {
+        eprintln!("could not register Inter: {e}");
+    }
+}
+
 macro_rules! icons {
     ($($variant:ident => $name:literal),* $(,)?) => {
-        #[allow(dead_code)]
         #[derive(Clone, Copy, Debug, PartialEq, Eq)]
         pub enum Icon {
             $($variant),*
@@ -32,17 +46,16 @@ macro_rules! icons {
 
 icons!(
     Area => "area", Fullscreen => "fullscreen", Window => "window", Timer => "timer", Ocr => "ocr",
-    History => "history", Pin => "pin", Copy => "copy", Save => "save", Edit => "edit", Close => "close",
+    History => "history", Pin => "pin", Copy => "copy", Edit => "edit", Close => "close",
     Cursor => "cursor", Crop => "crop", Arrow => "arrow", Rect => "rect", RectFilled => "rect-filled",
     Ellipse => "ellipse", Line => "line", Pencil => "pencil", Highlighter => "highlighter", Text => "text",
     Counter => "counter", Blur => "blur", Pixelate => "pixelate", Spotlight => "spotlight", Undo => "undo",
     Redo => "redo", Trash => "trash", Background => "background", Drag => "drag", Settings => "settings",
-    Check => "check", Lock => "lock", Unlock => "unlock", Folder => "folder", Restore => "restore",
+    Check => "check", Lock => "lock", Folder => "folder", Restore => "restore",
     Keyboard => "keyboard", Image => "image", Sparkles => "sparkles", Eye => "eye", Minus => "minus",
-    Maximize => "maximize", ZoomIn => "zoom-in", ZoomOut => "zoom-out", ChevronDown => "chevron-down",
-    More => "more", Camera => "camera", ExternalLink => "external-link", EyeOff => "eye-off",
-    FlipH => "flip-h", FlipV => "flip-v", Info => "info", Picker => "picker", Resize => "resize",
-    RotateLeft => "rotate-left", RotateRight => "rotate-right", Sound => "sound",
+    Maximize => "maximize", ChevronDown => "chevron-down",
+    FlipH => "flip-h", FlipV => "flip-v", Picker => "picker", Resize => "resize",
+    RotateLeft => "rotate-left", RotateRight => "rotate-right",
 );
 
 impl AssetSource for Assets {

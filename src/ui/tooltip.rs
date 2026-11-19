@@ -1,5 +1,5 @@
 use super::motion;
-use super::theme::{color, FONT};
+use super::theme::{color, font_size, radius, FONT};
 use gpui::prelude::*;
 use gpui::*;
 
@@ -12,12 +12,12 @@ impl Render for Tip {
             div()
                 .px(px(8.))
                 .py(px(4.))
-                .rounded(px(6.))
-                .bg(color::raised())
+                .rounded(radius::SM)
+                .bg(color::hud())
                 .border_1()
                 .border_color(color::hud_border())
-                .shadow_md()
-                .text_size(px(12.))
+                .shadow_lg()
+                .text_size(font_size::CAPTION)
                 .font_family(FONT)
                 .text_color(color::text())
                 .child(self.0.clone()),
